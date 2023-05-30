@@ -1,0 +1,17 @@
+services:
+  servicedesk-webhook:
+    build:
+      context: ServiceDeskForm
+    image: nssa/servicedeskform:latest
+    container_name: ServiceDeskForm
+    restart: unless-stopped
+    ports: 
+      - '51806:51806'
+    # volumes:
+      # - /data/docker_bindmount_volumes/servicedesk_webhook:/code/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://10.72.119.23:51802/servicedesk/"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

@@ -1,0 +1,400 @@
+{% extends 'mdb/base_mdb.html' %}
+{% block title %}
+<title>Yêu cầu mở dịch vụ trên Firewall</title>
+{% endblock %}
+
+{% block sidebar_navigation_link %}
+<!-- Side navigation links -->
+<li>
+  <ul class="collapsible collapsible-accordion" id="sidebar_body">
+    {% for element in sidebar %}
+    <a class="collapsible-header waves-effect"
+      href="{{ url_for('servicedesk.servicedeskrequest', requestid=element.requestid|e) }}"
+      id="{{ element.requestid|e}}" name="{{ element.requestid|e }}">
+      {{ element.requestid|e }}
+    </a>
+    {% endfor %}
+  </ul>
+</li>
+<!-- Side navigation links -->
+{% endblock %}
+
+{% block dataview %}
+<!-- Main layout -->
+<main>
+  <div class="container-fluid">
+    <!-- Section: Main panel -->
+    <section class="mb-5">
+
+      <!-- Card -->
+      <div class="card card-cascade narrower">
+        <!-- Section Request Detail -->
+        <section>
+          <input type="hidden" name="requestid" id="requestid" value="{{requestid}}">
+          {% if request_data|length > 0 and request_data is defined %}
+          {% for rule in request_data %}
+          <div id="form-array" class="row border border-dark">
+            <div class="col-md-2  border border-dark">
+              {{rule.name}}
+            </div>
+            <div class="col-md-2  border border-dark">
+              <div id="source-array-{{rule.id}}">
+                {% for element in rule.source %}
+                <span class="btn btn-outline-success mt-1 mb-1 pt-1 pb-1">{{ element.source|e }}</span>
+                <br>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="col-md-2 border border-dark">
+              <div id="destination-array-{{rule.id}}">
+                {% for element in rule.destination %}
+                <span class="btn btn-outline-success mt-1 mb-1 pt-1 pb-1">{{element.destination}}</span>
+                <br>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="col-md-2  border border-dark">
+              <div id="service-array-{{rule.id}}">
+                {% for element in rule.service %}
+                <span class="btn btn-outline-success mt-1 mb-1 pt-1 pb-1">{{element.port}}</span>
+                <br>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="col-md-2 border border-dark">
+              {{rule.description}}
+            </div>
+            <div class="col-md-2 border border-dark">
+              <!-- button save -->
+              <button type="button" class="btn p-1" id="btn-save-rule-{{rule.id}}" onclick="SaveRule(this.id)" disabled>
+                <i class="fa-solid fa-floppy-disk fa-xl"></i>
+              </button>
+              <!-- button edit -->
+              <button type="button" class="btn p-1" id="btn-edit-rule-{{rule.id}}" onclick="EditRule(this.id)" disabled>
+                <i class="fa-solid fa-pen-to-square fa-xl"></i>
+              </button>
+              <!-- button remove -->
+              <button type="button" class="btn p-1" id="btn-remove-rule-{{rule.id}}"
+                onclick="RemoveObjectRow(clicked = this.id, objectType = 'row',removedb = true)">
+                <i class="fa-solid fa-trash fa-xl"></i>
+              </button>
+              <!-- button open modal -->
+              <button type="button" class="btn p-1" id="btn-open-modal-{{rule.id}}" onclick="openmodal(this.id)">
+                <i class="fa-solid fa-file fa-xl"></i>
+              </button>
+
+              <!-- button move up -->
+              <button type="button" class="btn p-1" id="btn-move-up-{{rule.id}}" hidden disabled>
+                <i class="fa-solid fa-chevron-up fa-xl"></i>
+              </button>
+              <!-- button move down -->
+              <button type="button" class="btn p-1" id="btn-move-down-{{rule.id}}" hidden disabled>
+                <i class="fa-solid fa-chevron-down fa-xl"></i>
+              </button>
+            </div>
+          </div>
+          {% endfor %}
+
+          {% else %}
+          {{error}}
+          {% endif %}
+        </section>
+        <!-- Section Request Detail -->
+
+        <!-- Section: Table -->
+        <section>
+
+          <div class="card card-cascade narrower z-depth-0">
+
+            <div
+              class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
+
+              <div>
+                <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2"><i
+                    class="fas fa-th-large mt-0"></i></button>
+                <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2"><i
+                    class="fas fa-columns mt-0"></i></button>
+              </div>
+
+              <a href="" class="white-text mx-3">Table name</a>
+
+              <div>
+                <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2"><i
+                    class="fas fa-pencil-alt mt-0"></i></button>
+                <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2"><i
+                    class="fas fa-eraser mt-0"></i></button>
+                <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2"><i
+                    class="fas fa-info-circle mt-0"></i></button>
+              </div>
+
+            </div>
+
+            <div class="px-4">
+
+              <div class="table-responsive">
+
+                <!--Table-->
+                <table class="table table-hover mb-0">
+
+                  <!-- Table head -->
+                  <thead>
+                    <tr>
+                      <th>
+                        <input class="form-check-input" type="checkbox" id="checkbox">
+                        <label for="checkbox" class="form-check-label mr-2 label-table"></label>
+                      </th>
+                      <th class="th-lg"><a>First Name <i class="fas fa-sort ml-1"></i></a></th>
+                      <th class="th-lg"><a>Last Name<i class="fas fa-sort ml-1"></i></a></th>
+                      <th class="th-lg"><a>Username<i class="fas fa-sort ml-1"></i></a></th>
+                      <th class="th-lg"><a>Email<i class="fas fa-sort ml-1"></i></a></th>
+                      <th class="th-lg"><a>Country<i class="fas fa-sort ml-1"></i></a></th>
+                      <th class="th-lg"><a>City<i class="fas fa-sort ml-1"></i></a></th>
+                    </tr>
+                  </thead>
+                  <!-- Table head -->
+
+                  <!-- Table body -->
+                  <tbody>
+                    <tr>
+                      <th scope="row">
+                        <input class="form-check-input" type="checkbox" id="checkbox1">
+                        <label for="checkbox1" class="label-table"></label>
+                      </th>
+                      <td>Mark</td>
+                      <td>Otto</td>
+                      <td>@mdo</td>
+                      <td>markotto@gmail.com</td>
+                      <td>USA</td>
+                      <td>San Francisco</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">
+                        <input class="form-check-input" type="checkbox" id="checkbox2">
+                        <label for="checkbox2" class="label-table"></label>
+                      </th>
+                      <td>Jacob</td>
+                      <td>Thornton</td>
+                      <td>@fat</td>
+                      <td>jacobt@gmail.com</td>
+                      <td>France</td>
+                      <td>Paris</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">
+                        <input class="form-check-input" type="checkbox" id="checkbox3">
+                        <label for="checkbox3" class="label-table"></label>
+                      </th>
+                      <td>Larry</td>
+                      <td>the Bird</td>
+                      <td>@twitter</td>
+                      <td>larrybird@gmail.com</td>
+                      <td>Germany</td>
+                      <td>Berlin</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">
+                        <input class="form-check-input" type="checkbox" id="checkbox4">
+                        <label for="checkbox4" class="label-table"></label>
+                      </th>
+                      <td>Paul</td>
+                      <td>Topolski</td>
+                      <td>@P_Topolski</td>
+                      <td>ptopolski@gmail.com</td>
+                      <td>Poland</td>
+                      <td>Warsaw</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">
+                        <input class="form-check-input" type="checkbox" id="checkbox5">
+                        <label for="checkbox5" class="label-table"></label>
+                      </th>
+                      <td>Anna</td>
+                      <td>Doe</td>
+                      <td>@andy</td>
+                      <td>annadoe@gmail.com</td>
+                      <td>Spain</td>
+                      <td>Madrid</td>
+                    </tr>
+                  </tbody>
+                  <!-- Table body -->
+
+                </table>
+                <!-- Table -->
+
+              </div>
+
+              <hr class="my-0">
+
+              <!-- Bottom Table UI -->
+              <div class="d-flex justify-content-between">
+
+                <!-- Name -->
+                <select class="mdb-select colorful-select dropdown-primary md-form hidden-md-down">
+                  <option value="" disabled>Rows number</option>
+                  <option value="1" selected>5 rows</option>
+                  <option value="2">25 rows</option>
+                  <option value="3">50 rows</option>
+                  <option value="4">100 rows</option>
+                </select>
+
+                <!-- Pagination -->
+                <nav class="my-4">
+                  <ul class="pagination pagination-circle pg-blue mb-0">
+
+                    <!--First-->
+                    <li class="page-item disabled clearfix d-none d-md-block"><a class="page-link">First</a></li>
+
+                    <!-- Arrow left -->
+                    <li class="page-item disabled">
+                      <a class="page-link" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                      </a>
+                    </li>
+
+                    <!-- Numbers -->
+                    <li class="page-item active"><a class="page-link">1</a></li>
+                    <li class="page-item"><a class="page-link">2</a></li>
+                    <li class="page-item"><a class="page-link">3</a></li>
+                    <li class="page-item"><a class="page-link">4</a></li>
+                    <li class="page-item"><a class="page-link">5</a></li>
+
+                    <!-- Arrow right -->
+                    <li class="page-item">
+                      <a class="page-link" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                      </a>
+                    </li>
+
+                    <!-- First -->
+                    <li class="page-item clearfix d-none d-md-block"><a class="page-link">Last</a></li>
+
+                  </ul>
+                </nav>
+                <!-- Pagination -->
+
+              </div>
+              <!-- Bottom Table UI -->
+
+            </div>
+
+          </div>
+
+        </section>
+        <!--Section: Table-->
+
+      </div>
+      <!-- Card -->
+
+    </section>
+    <!-- Section: Main panel -->
+
+
+  </div>
+
+</main>
+<!-- Main layout -->
+{% endblock %}
+
+{% block footer %}
+<!-- Footer -->
+<footer class="page-footer pt-0 mt-5 rgba-stylish-light">
+
+  <!-- Copyright -->
+  <div class="footer-copyright py-3 text-center">
+    <div class="container-fluid">
+      © 2023 Copyright: <a href="http://nssa.dc.vn" target="_blank"> Nssa.dc.vn </a>
+    </div>
+  </div>
+
+</footer>
+<!-- Footer -->
+{% endblock %}
+
+{% block script %}
+<!-- Initializations -->
+<script>
+  // SideNav Initialization
+  $(".button-collapse").sideNav();
+
+  var container = document.querySelector('.custom-scrollbar');
+  var ps = new PerfectScrollbar(container, {
+    wheelSpeed: 0.5,
+    wheelPropagation: true,
+    minScrollbarLength: 20
+  });
+
+  // Data Picker Initialization
+  $('.datepicker').pickadate();
+
+  // Material Select Initialization
+  // $(document).ready(function () {
+  //   $('.mdb-select').material_select();
+  // });
+
+  // Tooltips Initialization
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  })
+
+</script>
+
+<script>
+  get_md_section("cp15600");
+  // Get Sidebar List
+  async function get_md_section(deviceid) {
+    return fetch("/servicedesk/firewall/firewallsection", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        deviceid: deviceid
+      })
+    })
+      .then((response) => {
+        return response.json()
+      })
+      .then((result) => {
+        let sidebar_body = document.getElementById("sidebar_body");
+        sidebar_body.innerHTML = "";
+        result.data.section.forEach(element => {
+          let a = document.createElement("a");
+          a.classList.add("collapsible-header", "waves-effect");
+          a.setAttribute("href", "#")
+          a.textContent = element.name;
+          let li = document.createElement("li");
+          li.appendChild(a);
+          sidebar_body.appendChild(li);
+        });
+      })
+      .catch(error => {
+        let sidebar_body = document.getElementById(sidebar_body);
+        sidebar_body.innerHTML = error;
+        console.error(error);
+      });
+  };
+  // Darkmode Button
+  $(function () {
+    $('#dark-mode').on('click', function (e) {
+
+      e.preventDefault();
+      $('h4, button').not('.check').toggleClass('dark-grey-text text-white');
+      $('.list-panel a').toggleClass('dark-grey-text');
+
+      $('footer, .card').toggleClass('dark-card-admin');
+      $('body, .navbar').toggleClass('white-skin navy-blue-skin');
+      $(this).toggleClass('white text-dark btn-outline-black');
+      $('body').toggleClass('dark-bg-admin');
+      $('h6, .card, p, td, th, i, li a, h4, input, label').not(
+        '#slide-out i, #slide-out a, .dropdown-item i, .dropdown-item').toggleClass('text-white');
+      $('.btn-dash').toggleClass('grey blue').toggleClass('lighten-3 darken-3');
+      $('.gradient-card-header').toggleClass('white black lighten-4');
+      $('.list-panel a').toggleClass('navy-blue-bg-a text-white').toggleClass('list-group-border');
+
+    });
+  });
+
+</script>
+{% endblock %}

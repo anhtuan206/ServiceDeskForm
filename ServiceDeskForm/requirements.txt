@@ -1,0 +1,9 @@
+Flask
+Flask_Login
+requests
+urllib3
+Werkzeug
+mysql-connector-python
+gunicorn
+# mysqlclient
+# pymysql

@@ -1,0 +1,15 @@
+__pycache__
+*/__pycache__
+templates/mdb/alerts
+templates/mdb/calendar
+templates/mdb/charts
+templates/mdb/components
+templates/mdb/css
+templates/mdb/dashboards
+templates/mdb/forms
+templates/mdb/maps
+templates/mdb/modals
+templates/mdb/pages
+templates/mdb/profile
+templates/mdb/sections
+templates/mdb/tables
