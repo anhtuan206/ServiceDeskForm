@@ -32,7 +32,7 @@
             <!-- Card Header -->
             <div
               class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
-              <a href="" class="white-text mx-3">Chính sách Firewall</a>
+              <a href="" class="white-text mx-3">Form nhập thông tin cấu hình chính sách Firewall</a>
               <div>
                 {% if error is not defined%}
                 <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2" onclick="AddForm()">Thêm
@@ -57,13 +57,13 @@
                   <!-- Table head -->
                   <thead>
                     <tr>
-                      <th><a>STT <i class="fas fa-sort ml-1"></i></a></th>
-                      <th><a>Tên<i class="fas fa-sort ml-1"></i></a></th>
-                      <th><a>Địa chỉ nguồn<i class="fas fa-sort ml-1"></i></a></th>
-                      <th><a>Địa chỉ đích<i class="fas fa-sort ml-1"></i></a></th>
-                      <th><a>Cổng kết nối<i class="fas fa-sort ml-1"></i></a></th>
-                      <th><a>Mô tả<i class="fas fa-sort ml-1"></i></a></th>
-                      <th><a>Thao tác<i class="fas fa-sort ml-1"></i></a></th>
+                      <th style="width: 5rem;">STT <i class="fas fa-sort ml-1"></i></a></th>
+                      <th>Tên</th>
+                      <th>Địa chỉ nguồn</th>
+                      <th>Địa chỉ đích</th>
+                      <th>Cổng kết nối</th>
+                      <th>Mô tả</th>
+                      <th style="width: 15rem;">Thao tác</th>
                     </tr>
                   </thead>
                   <!-- Table head -->
@@ -89,7 +89,7 @@
                             <span class="">
                               {{ element.source|e }}
                             </span>
-                            <div class="input-group mb-2 mx-1" id="input-group-source-{{rule.id}}-{{element.id}}">
+                            <div class="input-group" id="input-group-source-{{rule.id}}-{{element.id}}">
                               <input type="text" class="form-control form-control-sm" aria-label=""
                                 aria-describedby="btn-remove-source-{{rule.id}}-{{element.id}}"
                                 value="{{ element.source|e }}" id="input-source-{{rule.id}}-{{element.id}}" required
@@ -113,7 +113,7 @@
                             <span class="">
                               {{ element.destination|e }}
                             </span>
-                            <div class="input-group mb-2 mx-1" id="input-group-destination-{{rule.id}}-{{element.id}}">
+                            <div class="input-group" id="input-group-destination-{{rule.id}}-{{element.id}}">
                               <input type="text" class="form-control form-control-sm" aria-label=""
                                 aria-describedby="btn-remove-destination-{{rule.id}}-{{element.id}}"
                                 value="{{ element.destination|e }}" id="input-destination-{{rule.id}}-{{element.id}}"
@@ -137,7 +137,7 @@
                             <span class="">
                               {{ element.port|e }}
                             </span>
-                            <div class="input-group mb-2 mx-1" id="input-group-service-{{rule.id}}-{{element.id}}">
+                            <div class="input-group" id="input-group-service-{{rule.id}}-{{element.id}}">
                               <input type="text" class="form-control form-control-sm" aria-label=""
                                 aria-describedby="btn-remove-service-{{rule.id}}-{{element.id}}"
                                 value="{{ element.port|e }}" id="input-service-{{rule.id}}-{{element.id}}" required
@@ -215,7 +215,7 @@
                         <!-- Source column -->
                         <td>
                           <div id="source-array-0">
-                            <div class="input-group mb-2 mx-1" id="input-group-source-0-0">
+                            <div class="input-group" id="input-group-source-0-0">
                               <input type="text" class="form-control form-control-sm" placeholder="Địa chỉ nguồn"
                                 id="input-source-0-0" required>
                               <div class="input-group-append">
@@ -239,7 +239,7 @@
                         <!-- Destination column -->
                         <td>
                           <div id="destination-array-0">
-                            <div class="input-group mb-2 mx-1" id="input-group-destination-0-0">
+                            <div class="input-group" id="input-group-destination-0-0">
                               <input type="text" class="form-control form-control-sm" placeholder="Địa chỉ đích"
                                 id="input-destination-0-0" required>
                               <div class="input-group-append">
@@ -264,7 +264,7 @@
                         <!-- Service Column -->
                         <td>
                           <div id="service-array-0">
-                            <div class="input-group mb-2 mx-1" id="input-group-service-0-0">
+                            <div class="input-group" id="input-group-service-0-0">
                               <input type="text" class="form-control form-control-sm" placeholder="Cổng"
                                 id="input-service-0-0" required>
                               <div class="input-group-append">
@@ -295,11 +295,11 @@
                         <!-- Functional Column -->
                         <td>
                           <!-- button save -->
-                          <button type="button" class="btn btn-outline-primary btn-sm waves-effect waves-light" id="btn-save-rule-0" onclick="SaveRule(this.id)">
+                          <button type="button" class="btn btn-outline-primary btn-sm waves-effect waves-light mt-0" id="btn-save-rule-0" onclick="SaveRule(this.id)">
                             Lưu
                           </button>
                           <!-- button remove -->
-                          <button type="button" class="btn btn-outline-danger btn-sm waves-effect waves-light" id="btn-remove-rule-0"
+                          <button type="button" class="btn btn-outline-danger btn-sm waves-effect waves-light mt-0" id="btn-remove-rule-0"
                             onclick="RemoveObjectRow(this.id,objectType='rule',removedb=false)">
                             Xóa
                           </button>
@@ -421,7 +421,7 @@
         <!-- Source column -->
         <td>
           <div id="source-array-${objectCount}">
-            <div class="input-group mb-2 mx-1" id="input-group-source-${objectCount}-0">
+            <div class="input-group" id="input-group-source-${objectCount}-0">
               <input type="text" class="form-control form-control-sm" placeholder="Địa chỉ nguồn"
                 id="input-source-${objectCount}-0" required>
               <div class="input-group-append">
@@ -445,7 +445,7 @@
         <!-- Destination column -->
         <td>
           <div id="destination-array-${objectCount}">
-            <div class="input-group mb-2 mx-1" id="input-group-destination-${objectCount}-0">
+            <div class="input-group" id="input-group-destination-${objectCount}-0">
               <input type="text" class="form-control form-control-sm" placeholder="Địa chỉ đích"
                 id="input-destination-${objectCount}-0" required>
               <div class="input-group-append">
@@ -470,7 +470,7 @@
         <!-- Service Column -->
         <td>
           <div id="service-array-${objectCount}">
-            <div class="input-group mb-2 mx-1" id="input-group-service-${objectCount}-0">
+            <div class="input-group" id="input-group-service-${objectCount}-0">
               <input type="text" class="form-control form-control-sm" placeholder="Cổng"
                 id="input-service-${objectCount}-0" required>
               <div class="input-group-append">
@@ -501,11 +501,11 @@
         <!-- Functional Column -->
         <td>
           <!-- button save -->
-          <button type="button" class="btn btn-outline-primary btn-sm waves-effect waves-light" id="btn-save-rule-${objectCount}" onclick="SaveRule(this.id)">
+          <button type="button" class="btn btn-outline-primary btn-sm waves-effect waves-light mt-0" id="btn-save-rule-${objectCount}" onclick="SaveRule(this.id)">
             Lưu
           </button>
           <!-- button remove -->
-          <button type="button" class="btn btn-outline-danger btn-sm waves-effect waves-light" id="btn-remove-rule-${objectCount}"
+          <button type="button" class="btn btn-outline-danger btn-sm waves-effect waves-light mt-0" id="btn-remove-rule-${objectCount}"
             onclick="RemoveObjectRow(this.id,objectType='rule',removedb=false)">
             Xóa
           </button>
@@ -535,7 +535,7 @@
       placeholder = "Địa chỉ nguồn";
     }
     const objectHtml = `
-              <div class="input-group mb-2 mx-1" id="input-group-${objectType}-${row}-${objectCount}">
+              <div class="input-group" id="input-group-${objectType}-${row}-${objectCount}">
                 <input type="text" class="form-control form-control-sm" placeholder="${placeholder}" id="input-${objectType}-${row}-${objectCount}" required>
                 <div class="input-group-append">
                   <button class="btn btn-sm btn-md btn-outline-default m-0 px-2 py-1 z-depth-0 waves-effect" type="button" id="btn-remove-${objectType}-${row}-${objectCount}" onclick="RemoveObjectRow(this.id,'${objectType}')">
@@ -686,7 +686,7 @@
           location.reload();
         }
         else {
-          console.log(result)
+          // console.log(result)
           document.getElementById("alert_content").textContent = "code: " + result["code"] + " message: " + result["message"]
           document.getElementById("tbl_alert").removeAttribute("hidden", true)
         }

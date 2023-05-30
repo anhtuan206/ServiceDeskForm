@@ -34,11 +34,10 @@
             <!-- Card Header -->
             <div
               class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
-              <a href="" class="white-text mx-3">Cấu hình Citrix</a>
+              <a href="" class="white-text mx-3">Form nhập thông tin cấu hình cân bằng tải</a>
               <div>
-                {% if error is not defined%}
-                <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2" onclick="AddForm()">Thêm
-                  Rule</button>
+                {%if case != 1 and case != 2 %}
+                <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2" onclick="AddForm()">Thêm Cấu Hình</button>
                 {% endif %}
               </div>
             </div>
@@ -67,12 +66,12 @@
                   <!-- Table head -->
                   <thead>
                     <tr>
-                      <th><a>STT <i class="fas fa-sort ml-1"></i></a></th>
+                      <th style="width: 5rem;"><a>STT <i class="fas fa-sort ml-1"></i></a></th>
                       <th>Địa chỉ IP cân bằng tải</th>
                       <th>Thông tin máy chủ</th>
                       <th>Cổng cân bằng tải</th>
                       <th>Mô tả</th>
-                      <th>Thao tác</th>
+                      <th style="width: 15rem;">Thao tác</th>
                     </tr>
                   </thead>
                   <!-- Table head -->
@@ -90,7 +89,7 @@
                       <!-- Index Column -->
                       <!-- IP Citrix -->
                       <td>
-                        <div class="input-group mb-2 mx-1">
+                        <div class="input-group">
                           <span class="form-control form-control-sm data-view"
                             id="span-lb-{{element.lb.lbid}}">{{element.lb.vip}}</span>
                           <input type="text" class="form-control form-control-sm data-edit" placeholder="VIP"
@@ -103,11 +102,11 @@
                       <td>
                         <div id="server-array-{{element.lb.lbid}}">
                           {% for server in element.servers %}
-                          <div class="input-group mb-2 mx-1 data-view">
+                          <div class="input-group  data-view">
                             <span class="form-control form-control-sm">{{server.servername}}</span>
                             <span class="form-control form-control-sm">{{server.serveripaddress}}</span>
                           </div>
-                          <div class="input-group mb-2 mx-1 data-edit"
+                          <div class="input-group data-edit"
                             id="input-group-server-{{element.lb.lbid}}-{{server.serverid}}"
                             data-lbid="{{element.lb.lbid}}" data-requestid="{{requestid}}"
                             data-objectid="{{server.serverid}}" hidden>
@@ -147,11 +146,11 @@
                       <td>
                         <div id="serviceandprotocol-array-{{element.lb.lbid}}">
                           {% for service in element.services %}
-                          <div class="input-group mb-2 mx-1 data-view" id="">
+                          <div class="input-group  data-view" id="">
                             <span class="form-control form-control-sm">{{service.serviceport}}</span>
                             <span class="form-control form-control-sm">{{service.servicetype}}</span>
                           </div>
-                          <div class="input-group mb-2 mx-1 data-edit"
+                          <div class="input-group data-edit"
                             id="input-group-serviceandprotocol-{{element.lb.lbid}}-{{service.serviceid}}"
                             data-lbid="{{element.lb.lbid}}" data-requestid="{{requestid}}"
                             data-objectid="{{service.serviceid}}" hidden>
@@ -201,7 +200,7 @@
                       <!-- Service and protocol column -->
                       <!-- Description Column -->
                       <td>
-                        <div class="input-group mb-2 mx-1" id="">
+                        <div class="input-group">
                           <span class="form-control form-control-sm data-view">{{element.lb.description}}</span>
                         </div>
                         <textarea class="form-control form-control-sm data-edit" placeholder="Mô tả"
@@ -212,31 +211,35 @@
                       <!-- Description Column -->
                       <!-- Functional Column -->
                       <td>
-                        <div class="input-group mb-2 mx-1" id="">
+                        <div class="input-group">
                           <!-- button update -->
-                          <button type="button" class="btn btn-outline-primary btn-sm waves-effect waves-light data-edit" id="btn-update-lb-{{element.lb.lbid}}"
-                            data-lbid="{{element.lb.lbid}}" data-requestid="{{requestid}}"
-                            data-objectid="{{element.lb.lbid}}" onclick="UpdateLB(this)" disabled hidden>
+                          <button type="button"
+                            class="btn btn-outline-primary btn-sm waves-effect waves-light data-edit mt-0"
+                            id="btn-update-lb-{{element.lb.lbid}}" data-lbid="{{element.lb.lbid}}"
+                            data-requestid="{{requestid}}" data-objectid="{{element.lb.lbid}}" onclick="UpdateLB(this)"
+                            disabled hidden>
                             Lưu
                           </button>
                           <!-- button udpate -->
                           <!-- button edit -->
-                          <button type="button" class="btn btn-outline-warning btn-sm waves-effect waves-light data-view" id="btn-edit-lb-{{element.lb.lbid}}"
-                            data-lbid="{{element.lb.lbid}}" data-requestid="{{requestid}}"
-                            data-objectid="{{element.lb.lbid}}" onclick="EditLB(this)">
+                          <button type="button"
+                            class="btn btn-outline-warning btn-sm waves-effect waves-light data-view  mt-0"
+                            id="btn-edit-lb-{{element.lb.lbid}}" data-lbid="{{element.lb.lbid}}"
+                            data-requestid="{{requestid}}" data-objectid="{{element.lb.lbid}}" onclick="EditLB(this)">
                             Sửa
                           </button>
                           <!-- button edit -->
                           <!-- button save -->
-                          <button type="button" class="btn btn-outline-primary btn-sm waves-effect waves-light" id="btn-save-lb-{{element.lb.lbid}}"
-                            data-lbid="{{element.lb.lbid}}" data-requestid="{{requestid}}"
-                            data-objectid="{{element.lb.lbid}}" onclick="SaveLB(this)" hidden disabled>
+                          <button type="button" class="btn btn-outline-primary btn-sm waves-effect waves-light  mt-0"
+                            id="btn-save-lb-{{element.lb.lbid}}" data-lbid="{{element.lb.lbid}}"
+                            data-requestid="{{requestid}}" data-objectid="{{element.lb.lbid}}" onclick="SaveLB(this)"
+                            hidden disabled>
                             Lưu
                           </button>
                           <!-- button remove -->
-                          <button type="button" class="btn btn-outline-danger btn-sm waves-effect waves-light" id="btn-remove-lb-{{element.lb.lbid}}"
-                            data-lbid="{{element.lb.lbid}}" data-requestid="{{requestid}}"
-                            data-objectid="{{element.lb.lbid}}"
+                          <button type="button" class="btn btn-outline-danger btn-sm waves-effect waves-light  mt-0"
+                            id="btn-remove-lb-{{element.lb.lbid}}" data-lbid="{{element.lb.lbid}}"
+                            data-requestid="{{requestid}}" data-objectid="{{element.lb.lbid}}"
                             onclick="RemoveObjectRow(this,objectType='lb',removedb=true)">
                             Xóa
                           </button>
@@ -257,7 +260,7 @@
                       <!-- Index Column -->
                       <!-- IP Citrix -->
                       <td>
-                        <div class="input-group mb-2 mx-1">
+                        <div class="input-group ">
                           <input type="text" class="form-control form-control-sm" placeholder="VIP" id="lb-0" required>
                         </div>
                       </td>
@@ -265,7 +268,7 @@
                       <!-- Server column -->
                       <td>
                         <div id="server-array-0">
-                          <div class="input-group mb-2 mx-1 data-edit" id="input-group-server-0-0" data-lbid="0"
+                          <div class="input-group  data-edit" id="input-group-server-0-0" data-lbid="0"
                             data-requestid="{{requestid}}" data-objectid="0">
                             <input type="text" class="form-control form-control-sm data-edit" placeholder="Tên máy chủ"
                               id="input-servername-0-0" data-lbid="0" data-requestid="{{requestid}}" data-objectid="0">
@@ -294,7 +297,7 @@
                       <!-- Service and protocol column -->
                       <td>
                         <div id="serviceandprotocol-array-0">
-                          <div class="input-group mb-2 mx-1 data-edit" id="input-group-serviceandprotocol-0-0"
+                          <div class="input-group  data-edit" id="input-group-serviceandprotocol-0-0"
                             data-lbid="0" data-requestid="{{requestid}}" data-objectid="0">
                             <input type="text" class="form-control form-control-sm data-edit" placeholder="Cổng"
                               id="input-port-0-0" data-lbid="0" data-requestid="{{requestid}}" data-objectid="0">
@@ -335,17 +338,20 @@
                       <!-- Description Column -->
                       <!-- Functional Column -->
                       <td>
-                        <!-- button save -->
-                        <button type="button" class="btn btn-outline-primary btn-sm waves-effect waves-light" id="btn-save-lb-0" data-lbid="0"
-                          data-requestid="{{requestid}}" data-objectid="0" onclick="SaveLB(this)">
-                          Lưu
-                        </button>
-                        <!-- button remove -->
-                        <button type="button" class="btn btn-outline-danger btn-sm waves-effect waves-light" id="btn-remove-lb-0" data-lbid="0"
-                          data-requestid="{{requestid}}" data-objectid="0"
-                          onclick="RemoveObjectRow(this,objectType='lb',removedb=false)">
-                          Xóa
-                        </button>
+                        <div class="input-group">
+                          <!-- button save -->
+                          <button type="button" class="btn btn-outline-primary btn-sm waves-effect waves-light mt-0"
+                            id="btn-save-lb-0" data-lbid="0" data-requestid="{{requestid}}" data-objectid="0"
+                            onclick="SaveLB(this)">
+                            Lưu
+                          </button>
+                          <!-- button remove -->
+                          <button type="button" class="btn btn-outline-danger btn-sm waves-effect waves-light mt-0"
+                            id="btn-remove-lb-0" data-lbid="0" data-requestid="{{requestid}}" data-objectid="0"
+                            onclick="RemoveObjectRow(this,objectType='lb',removedb=false)">
+                            Xóa
+                          </button>
+                        </div>
                       </td>
                       <!-- Functional Column -->
                     </tr>
@@ -452,7 +458,7 @@
     <!-- Index Column -->
     <!-- IP Citrix -->
     <td>
-      <div class="input-group mb-2 mx-1">
+      <div class="input-group ">
         <input type="text" class="form-control form-control-sm" placeholder="VIP" id="lb-${lbid}" required>
       </div>
     </td>
@@ -460,7 +466,7 @@
     <!-- Server column -->
     <td>
       <div id="server-array-${lbid}">
-        <div class="input-group mb-2 mx-1 data-edit" id="input-group-server-${lbid}-0" data-lbid="${lbid}"
+        <div class="input-group  data-edit" id="input-group-server-${lbid}-0" data-lbid="${lbid}"
           data-requestid="${requestid}" data-objectid="${objectid}">
           <input type="text" class="form-control form-control-sm data-edit" placeholder="Tên máy chủ"
             id="input-servername-${lbid}-${objectid}" data-lbid="${lbid}" data-requestid="${requestid}" data-objectid="${objectid}">
@@ -489,7 +495,7 @@
     <!-- Service and protocol column -->
     <td>
       <div id="serviceandprotocol-array-${lbid}">
-        <div class="input-group mb-2 mx-1 data-edit" id="input-group-serviceandprotocol-${lbid}-${objectid}"
+        <div class="input-group  data-edit" id="input-group-serviceandprotocol-${lbid}-${objectid}"
           data-lbid="${lbid}" data-requestid="${requestid}" data-objectid="${objectid}">
           <input type="text" class="form-control form-control-sm data-edit" placeholder="Cổng"
             id="input-port-${lbid}-${objectid}" data-lbid="${lbid}" data-requestid="${requestid}"
@@ -532,17 +538,19 @@
     <!-- Description Column -->
     <!-- Functional Column -->
     <td>
-      <!-- button save -->
-      <button type="button" class="btn btn-outline-primary btn-sm waves-effect waves-light" id="btn-save-lb-${lbid}" data-lbid="${lbid}"
-        data-requestid="${requestid}" onclick="SaveLB(this)">
-        Lưu
-      </button>
-      <!-- button remove -->
-      <button type="button" class="btn btn-outline-danger btn-sm waves-effect waves-light" id="btn-remove-lb-${lbid}" data-lbid="${lbid}"
-        data-requestid="${requestid}"
-        onclick="RemoveObjectRow(this,objectType='lb',removedb=false)">
-        Xóa
-      </button>
+      <div class="input-group">
+        <!-- button save -->
+        <button type="button" class="btn btn-outline-primary btn-sm waves-effect waves-light mt-0" id="btn-save-lb-${lbid}" data-lbid="${lbid}"
+          data-requestid="${requestid}" onclick="SaveLB(this)">
+          Lưu
+        </button>
+        <!-- button remove -->
+        <button type="button" class="btn btn-outline-danger btn-sm waves-effect waves-light mt-0" id="btn-remove-lb-${lbid}" data-lbid="${lbid}"
+          data-requestid="${requestid}"
+          onclick="RemoveObjectRow(this,objectType='lb',removedb=false)">
+          Xóa
+        </button>
+      </div>
     </td>
     <!-- Functional Column -->
     `;
@@ -562,7 +570,7 @@
     objectHTML = null
     if (objectType == "server") {
       let objectHtml = `
-        <div class="input-group mb-2 mx-1 data-edit" id="input-group-${objectType}-${lbid}-${objectid}" data-lbid="${lbid}" data-requestid="${requestid}" data-objectid="${objectid}">
+        <div class="input-group  data-edit" id="input-group-${objectType}-${lbid}-${objectid}" data-lbid="${lbid}" data-requestid="${requestid}" data-objectid="${objectid}">
           <input type="text"  class="form-control form-control-sm data-edit" placeholder="Tên máy chủ" id="input-servername-${lbid}-${objectid}" data-lbid="${lbid}" data-requestid="${requestid}" data-objectid="${objectid}">
           <input type="text"  class="form-control form-control-sm data-edit" placeholder="Địa chỉ IP" id="input-serverip-${lbid}-${objectid}" data-lbid="${lbid}" data-requestid="${requestid}" data-objectid="${objectid}">
           <div class="input-group-append data-edit">
@@ -578,7 +586,7 @@
     };
     if (objectType == "serviceandprotocol") {
       let objectHtml = `
-        <div class="input-group mb-2 mx-1 data-edit" id="input-group-${objectType}-${lbid}-${objectid}" data-lbid="${lbid}" data-requestid="${requestid}" data-objectid="${objectid}">
+        <div class="input-group  data-edit" id="input-group-${objectType}-${lbid}-${objectid}" data-lbid="${lbid}" data-requestid="${requestid}" data-objectid="${objectid}">
           <input type="text"  class="form-control form-control-sm data-edit"
             placeholder="Cổng" id="input-port-${lbid}-${objectid}" data-lbid="${lbid}" data-requestid="${requestid}" data-objectid="${objectid}">
           <select class="browser-default custom-select custom-select-sm data-edit" id="slt-protocol-${lbid}-${objectid}" data-lbid="${lbid}" data-requestid="${requestid}" data-objectid="${objectid}">
@@ -703,7 +711,7 @@
     let services = []
     $("#server-array-" + lbid).children(".data-edit").each(function () {
       let object_id = $(this).data("objectid");
-      console.log(object_id);
+      // console.log(object_id);
       let servername = $("#input-servername-" + lbid + "-" + object_id).val();
       let serverip = $("#input-serverip-" + lbid + "-" + object_id).val();
       servers.push({
@@ -794,7 +802,7 @@
       });
     });
     $("#serviceandprotocol-array-" + lbid).children(".data-edit").each(function () {
-      console.log($(this))
+      // console.log($(this))
       let object_id = $(this).data("objectid")
       let port = $("#input-port-" + lbid + "-" + object_id).val();
       let protocol = $("#slt-protocol-" + lbid + "-" + object_id).val();
