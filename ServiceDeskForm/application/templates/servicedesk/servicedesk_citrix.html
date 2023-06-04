@@ -37,7 +37,14 @@
               <a href="" class="white-text mx-3">Form nhập thông tin cấu hình cân bằng tải</a>
               <div>
                 {%if case != 1 and case != 2 %}
-                <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2" onclick="AddForm()">Thêm Cấu Hình</button>
+                {%if approval_status is defined%}
+                {%if approval_status.code == 1 and approval_status.message is none %}
+                <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
+                  id="btn-open-modal-{{requestid}}" data-requestid="{{requestid}}" onclick="open_modal(this)">Gửi phê duyệt</button>
+                {% endif %}
+                {% endif %}
+                <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2" onclick="AddForm()">Thêm Cấu
+                  Hình</button>
                 {% endif %}
               </div>
             </div>
@@ -51,15 +58,50 @@
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-              <!-- Hiển thị lỗi dữ liệu không hợp lệ -->
-              {%if case == 1 or case == 2 %}
-              <div class="alert alert-warning" role="alert">
-                {{data.data}}
+              <div class="d-flex p-2 justify-content-end">
+                <!-- Hiển thị lỗi dữ liệu không hợp lệ -->
+                {%if case == 1 or case == 2 %}
+                <div class="alert alert-warning" role="alert">
+                  {{data.data}}
+                </div>
+                {%endif%}
+                <!-- Hiển thị lỗi dữ liệu không hợp lệ -->
+                <!-- Trường hợp 1 - có sẵn dữ liệu -->
+                {%if case != 1 and case != 2 %}
+                {% if approval_status is defined %}
+                <div class="py-1 px-2">
+                  Trạng thái phê duyệt:
+                </div>
+                {% if approval_status.code == 1 %}
+                <!-- reject -->
+                {% if approval_status.message.id == "3" %}
+                <div class=" px-2 py-1 danger-color text-white rounded">
+                  {{approval_status.message.name}}
+                </div>
+                <!-- approved -->
+                {% elif approval_status.message.id == "2" %}
+                <div class=" px-2 py-1 success-color text-white rounded">
+                  {{approval_status.message.name}}
+                </div>
+                <!-- pending approval -->
+                {% elif approval_status.message.id == "1" %}
+                <div class=" px-2 py-1 info-color text-white rounded">
+                  {{approval_status.message.name}}
+                </div>
+                <!-- not yet submit for approval -->
+                {% else%}
+                <div class=" px-2 py-1 rounded">
+                  Chưa tạo phê duyệt
+                </div>
+                {% endif %}
+                {%else%}
+                <div class="border border-black">
+                  {{approval_status.message}}
+                </div>
+                {% endif %}
               </div>
-              {%endif%}
-              <!-- Hiển thị lỗi dữ liệu không hợp lệ -->
-              <!-- Trường hợp 1 - có sẵn dữ liệu -->
-              {%if case != 1 and case != 2 %}
+              {% endif %}
+
               <div class="table-responsive">
                 <!--Table-->
                 <table class="table table-hover mb-0" id="tbl_citrix_request">
@@ -211,6 +253,8 @@
                       <!-- Description Column -->
                       <!-- Functional Column -->
                       <td>
+                        {%if approval_status is defined%}
+                        {%if approval_status.code == 1 and approval_status.message is none %}
                         <div class="input-group">
                           <!-- button update -->
                           <button type="button"
@@ -244,6 +288,8 @@
                             Xóa
                           </button>
                         </div>
+                        {%endif%}
+                        {%endif%}
                       </td>
                       <!-- Functional Column -->
                     </tr>
@@ -297,8 +343,8 @@
                       <!-- Service and protocol column -->
                       <td>
                         <div id="serviceandprotocol-array-0">
-                          <div class="input-group  data-edit" id="input-group-serviceandprotocol-0-0"
-                            data-lbid="0" data-requestid="{{requestid}}" data-objectid="0">
+                          <div class="input-group  data-edit" id="input-group-serviceandprotocol-0-0" data-lbid="0"
+                            data-requestid="{{requestid}}" data-objectid="0">
                             <input type="text" class="form-control form-control-sm data-edit" placeholder="Cổng"
                               id="input-port-0-0" data-lbid="0" data-requestid="{{requestid}}" data-objectid="0">
                             <select class="browser-default custom-select custom-select-sm data-edit"
@@ -338,6 +384,8 @@
                       <!-- Description Column -->
                       <!-- Functional Column -->
                       <td>
+                        {%if approval_status is defined%}
+                        {%if approval_status.code == 1 and approval_status.message is none %}
                         <div class="input-group">
                           <!-- button save -->
                           <button type="button" class="btn btn-outline-primary btn-sm waves-effect waves-light mt-0"
@@ -352,6 +400,8 @@
                             Xóa
                           </button>
                         </div>
+                        {%endif%}
+                        {%endif%}
                       </td>
                       <!-- Functional Column -->
                     </tr>
@@ -376,6 +426,78 @@
 </main>
 <!-- Main layout -->
 
+<!-- Central Modal Small -->
+<div class="modal fade" id="md_submit_for_approval_{{requestid}}" tabindex="-1" role="dialog"
+  aria-labelledby="myModalLabel" aria-hidden="true">
+
+  <!-- Change class .modal-sm to change the size of the modal -->
+  <div class="modal-dialog modal-xm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title w-100" id="myModalLabel">Submit for Approval</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning alert-dismissible fade show" role="alert" id="md_alert" hidden>
+          <div id="md_alert_content"></div>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <!-- Default form contact -->
+        <label for="md-slt-approver-{{requestid}}">
+          Chọn người phê duyệt
+        </label>
+
+        <select class="form-control form-control-sm mb-4" id="md-slt-approver-{{requestid}}"
+          data-requestid="{{requestid}}">
+          <optgroup label="Phòng Vận Hành">
+            <option value="chaunt@cpc.vn">Nguyễn Thanh Châu</option>
+            <option value="locn@cpc.vn">Nguyễn Lộc</option>
+            <option value="dunghx@cpc.vn">Hoàng Xuân Dũng</option>
+          </optgroup>
+          <optgroup label="Phòng Phần Mềm">
+            <option value="thongv@cpc.vn">Vương Thông</option>
+            <option value="nhatnm@cpc.vn">Nguyễn Minh Nhật</option>
+            <option value="binhns@cpc.vn">Nguyễn Sơn Bình</option>
+            <option value="tuantk@cpc.vn">Trần Khắc Tuấn</option>
+          </optgroup>
+          <optgroup label="Phòng An Toàn Thông Tin">
+            <option value="truongdx@cpc.vn">Đinh Xuân Trưởng</option>
+          </optgroup>
+          <optgroup label="Phòng Phát Triển Ứng Dụng">
+            <option value="vantri@cpc.vn">Phan Văn Trí</option>
+            <option value="thangltm@cpc.vn">Nguyễn Minh Thắng</option>
+          </optgroup>
+          <optgroup label="Phòng Kỹ thuật và Mạng viễn thông">
+            <option value="tuanpa2@cpc.vn">Phan Anh Tuấn</option>
+            <option value="tungttt@cpc.vn">Tôn Thất Thanh Tùng</option>
+            <option value="dangdh@cpc.vn">Đoàn Hải Đăng</option>
+            <option value="haitn@cpc.vn">Trương Ngọc Hải</option>
+          </optgroup>
+          <optgroup label="Ban Giám Đốc">
+            <option value="binhns@cpc.vn">Nguyễn Sơn Bình</option>
+            <option value="tuantk@cpc.vn">Trần Khắc Tuấn</option>
+          </optgroup>
+        </select>
+        <!-- Message -->
+        <div class="form-group">
+          <textarea class="form-control rounded-0" id="md-textarea-message-{{requestid}}" data-requestid="{{requestid}}"
+            rows="3" placeholder="Lời nhắn cho người phê duyệt"></textarea>
+        </div>
+        <!-- Default form contact -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary btn-sm" id="md-btn-submitforapproval-{{requestid}}"
+          data-requestid="{{requestid}}" onclick="submit_for_approval(this)">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Central Modal Small -->
 
 {% endblock %}
 
@@ -426,6 +548,46 @@
 </script>
 <!-- Template Script -->
 <!-- Custom Script -->
+<!-- Modal Related Script -->
+<script>
+  function submit_for_approval(clicked) {
+    let requestid = clicked.dataset.requestid
+    let approver = $("#md-slt-approver-" + requestid).val();
+    let message = $("#md-textarea-message-" + requestid).val();
+    let postData = {
+      email_id: approver,
+      message: message
+    };
+    fetch("/servicedesk/citrix/" + requestid + "/submitforapproval", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(postData)
+    })
+      .then((response) => {
+        return response.json()
+      })
+      .then((data) => {
+        let result = data;
+        if (result["code"] == 1) {
+          location.reload();
+        }
+        else {
+          message = null;
+          if (result.error) { message = result.error }
+          if (result.data) { message = result.data }
+          document.getElementById("md_alert_content").innerText = message;
+          document.getElementById("md__alert").removeAttribute("hidden", true)
+        }
+      })
+      .catch(error => console.error(error));
+  };
+  function open_modal(clicked) {
+    $('#md_submit_for_approval_{{requestid}}').modal('show')
+  }
+</script>
+<!-- Modal Related Script -->
 <!-- Script -->
 <script>
   // Đánh số thứ tự các dòng trong bảng

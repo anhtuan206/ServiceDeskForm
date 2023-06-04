@@ -273,7 +273,6 @@ class FirewallRule:
             if datatype == "services":
                 query = f"UPDATE firewall_user_submit_service SET port = {value} WHERE id = {objectid} AND ruleid = {ruleid}"
             self.connect()
-            print(query)
             cursor = self.dbconnect.cursor()
             cursor.execute(query)
             self.dbconnect.commit()

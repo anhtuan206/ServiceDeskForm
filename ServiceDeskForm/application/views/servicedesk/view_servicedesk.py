@@ -1,7 +1,9 @@
 import urllib3
 from flask import Blueprint, render_template, json, request, make_response, jsonify
+from email_validator import validate_email, EmailNotValidError
 from ...database import FirewallRule
 from ...database import Citrix
+from ...api.manage_engine import ServiceDeskPlus
 import ipaddress
 
 urllib3.disable_warnings()
@@ -10,14 +12,21 @@ bp_servicedesk = Blueprint("servicedesk", __name__, url_prefix="/servicedesk")
 
 mysql_firewall = FirewallRule
 mysql_citrix = Citrix
+hotrocntt = ServiceDeskPlus(
+    url="hotrocntt.cpc.vn", authtoken="564C437D-62C0-4458-8B16-53847F2EEAD9"
+)
 
 
 @bp_servicedesk.get("/")
 def servicedesk_root():
-    return make_response(jsonify({"code": 1,"message": "Success"}),200)
+    return make_response(jsonify({"code": 1, "message": "Success"}), 200)
 
 
 # Firewall Section
+@bp_servicedesk.get("/firewall1/<string:request_id>")
+def view_servicedesk_firewall1(request_id):
+    pass
+
 @bp_servicedesk.route(
     "/firewall/<string:requestid>", methods=["GET", "POST", "DELETE", "PUT"]
 )
@@ -92,6 +101,7 @@ def view_servicedesk_firewall(requestid):
     # Get form data
     if request.method == "GET":
         servicedeskid = mysql_firewall().get_servicedesk_firewall(requestid=requestid)
+        # Case 1: ticket không tồn tại trong database
         if servicedeskid["code"] == 1 and len(servicedeskid["data"]) > 0:
             request_data = mysql_firewall().get_firewall_user_submit_rule(
                 requestid=requestid
@@ -130,7 +140,6 @@ def view_servicedesk_firewall(requestid):
         content_type = request.headers.get("Content-Type")
         if content_type == "application/json":
             jsonData = request.json
-            print(jsonData)
             if jsonData["type"] == "rule":
                 result = mysql_firewall().remove_user_submit_rule(
                     requestid=requestid, ruleid=jsonData["ruleid"]
@@ -233,6 +242,7 @@ def view_servicedesk_firewall(requestid):
 
 
 # Firewall Section
+
 # Citrix Section
 @bp_servicedesk.get("/citrix/<string:requestid>")
 def view_servicedesk_citrix(requestid):
@@ -240,19 +250,47 @@ def view_servicedesk_citrix(requestid):
     servicedesk_request = mysql_citrix().get_servicedesk_citrix_request(
         requestid=requestid
     )
-    # Case 1: Ticket không tồn tại trong hệ thống -> trả về thông báo lỗi
-    if servicedesk_request["code"] == 1 and not len(servicedesk_request["data"]) > 0:
-        print("Case 1")
-        # return make_response(jsonify({"code": 0,"error": f"Request ID: {requestid} không hợp lệ!"}),200)
+    if type(servicedesk_request) is not (dict or json):
         return render_template(
             "servicedesk/servicedesk_citrix.html",
             requestid=requestid,
             case=1,
-            data={"code": 0, "data": f"Request ID: {requestid} không hợp lệ!"},
+            data={"code": 0, "data": f"Lỗi kết nối cơ sở dữ liệu"},
         )
-    # Case 2: Query database trả về query exception, render template với thông tin lỗi
+    # Case 1: Ticket không tồn tại trong hệ thống -> trả về thông báo lỗi
+    if servicedesk_request["code"] == 1 and not len(servicedesk_request["data"]) > 0:
+        if hotrocntt.check_request_is_valid(request_id=requestid) is True:
+            result = mysql_citrix().insert_citrix_servicedeskrequest(
+                    requestid=requestid
+                )
+            if result is not True:
+                return render_template(
+                    "servicedesk/servicedesk_citrix.html",
+                    requestid=requestid,
+                    case=1,
+                    data={
+                        "code": 0,
+                        "data": f"Lỗi khi nhập yêu cầu vào cơ sở dữ liệu",
+                    },
+                )
+            return render_template(
+                "servicedesk/servicedesk_citrix.html",
+                requestid=requestid,
+                case=3,
+                data=mysql_citrix().get_servicedesk_citrix_request(requestid=requestid),
+                approval_status=hotrocntt.get_request_approval_status(
+                    request_id=requestid
+                ),
+            )
+        return render_template(
+            "servicedesk/servicedesk_citrix.html",
+            requestid=requestid,
+            case=1,
+            data={"code": 0, "data": f"Request_id {requestid} không hợp lệ!"},
+        )
+        
+    # Case 2: Query database trả về query exception => render template với thông tin lỗi
     if not servicedesk_request["code"] == 1:
-        print("Case 2")
         return render_template(
             "servicedesk/servicedesk_citrix.html",
             requestid=requestid,
@@ -268,15 +306,16 @@ def view_servicedesk_citrix(requestid):
             all_request_data.get("code") == 1
             and not len(all_request_data.get("data")) > 0
         ):
-            print("Case 3")
             return render_template(
                 "servicedesk/servicedesk_citrix.html",
                 requestid=requestid,
                 case=3,
                 data=None,
+                approval_status=hotrocntt.get_request_approval_status(
+                    request_id=requestid
+                ),
             )
         # Case 4: Ticket tồn tại trong hệ thống và đã nhập dữ liệu
-        print("Case 4")
         data = []
         lb_data = mysql_citrix().get_citrix_lb(requestid=requestid)
         # Nếu request lb_data trả về exception
@@ -317,12 +356,14 @@ def view_servicedesk_citrix(requestid):
             requestid=requestid,
             case=4,
             data={"code": 1, "data": data},
+            approval_status=hotrocntt.get_request_approval_status(request_id=requestid),
         )
 
     return make_response(jsonify(servicedesk_request), 200)
     # return render_template('servicedesk/servicedesk_citrix.html')
 
 
+# View form
 @bp_servicedesk.post("/citrix/<string:requestid>")
 def post_servicedesk_citrix(requestid):
     def validate_ipaddress(ip_string):
@@ -414,6 +455,51 @@ def post_servicedesk_citrix(requestid):
     return make_response(jsonify(message), 200)
 
 
+# Gọi hàm submit for approval
+@bp_servicedesk.post("/citrix/<string:requestid>/submitforapproval")
+def post_submit_for_approval(requestid):
+    def check_email(email):
+        try:
+            v = validate_email(email)
+            return True
+        except EmailNotValidError as e:
+            return False
+
+    try:
+        jsonData = request.json
+        email_id = jsonData.get("email_id")
+        if email_id is None or check_email(email_id) is not True:
+            return make_response(
+                jsonify({"code": 0, "data": "Người phê duyệt không hợp lệ"}), 200
+            )
+        message = jsonData.get("message")
+        approver_details = hotrocntt.get_users(user_email=email_id)
+        if type(approver_details) is not dict:
+            return make_response(
+                jsonify({"code": 0, "data": "Lỗi lấy thông tin người phê duyệt"}), 200
+            )
+        approver_id = [user.get("id") for user in approver_details.get("users")]
+        result = hotrocntt.submit_for_approval(
+            request_id=requestid, approver_id=approver_id, message=message
+        )
+        if type(result) is not dict:
+            return make_response(
+                jsonify({"code": 0, "data": "Gửi phê duyệt không thành công"}), 200
+            )
+        if (
+            result.get("response_status").get("status_code") == 2000
+            and result.get("response_status").get("status") == "success"
+        ):
+            return make_response(
+                jsonify({"code": 1, "data": result.get("submit_for_approval")}), 200
+            )
+    except:
+        return make_response(
+            jsonify({"code": 0, "data": "Có lỗi xảy ra khi gửi yêu cầu phê duyệt"}), 200
+        )
+
+
+# Update form
 @bp_servicedesk.put("/citrix/<string:requestid>")
 def put_servicedesk_citrix(requestid):
     def validate_ipaddress(ip_string):
@@ -501,6 +587,7 @@ def put_servicedesk_citrix(requestid):
     return make_response(jsonify({"code": 1, "message": "Success"}), 200)
 
 
+# Delete request
 @bp_servicedesk.delete("/citrix/<string:requestid>")
 def delete_servicedesk_citrix(requestid):
     jsonData = request.json
@@ -530,24 +617,24 @@ def delete_servicedesk_citrix(requestid):
 
 # Citrix Section
 
-# Service Desk Section
+
+# Service Desk Section: hotrocntt post thông tin request thông qua webhook
 @bp_servicedesk.post("/<string:servicedesk_template>")
 def post_servicedesk(servicedesk_template):
     jsonData = request.json
-    print(jsonData)
     if servicedesk_template == "citrix":
         result = mysql_firewall().insert_firewall_servicedeskrequest(
-            requestid=jsonData.get("requestid"),
-            subject=jsonData.get("subject")
+            requestid=jsonData.get("requestid"), subject=jsonData.get("subject")
         )
         if result is not True:
-            return make_response(jsonify(result),200)
+            return make_response(jsonify(result), 200)
     if servicedesk_template == "firewall":
         result = mysql_citrix().insert_citrix_servicedeskrequest(
-            requestid=jsonData.get("requestid"),
-            subject=jsonData.get("subject")
+            requestid=jsonData.get("requestid"), subject=jsonData.get("subject")
         )
         if result is not True:
-            return make_response(jsonify(result),200)
-    return make_response(jsonify({"code": 0, "message": "Success"}),200)
+            return make_response(jsonify(result), 200)
+    return make_response(jsonify({"code": 0, "message": "Success"}), 200)
+
+
 # Service Desk Section
