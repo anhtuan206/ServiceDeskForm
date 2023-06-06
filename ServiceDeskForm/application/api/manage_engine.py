@@ -166,9 +166,9 @@ class ServiceDeskPlus:
                     {requester_name} gửi cho bạn có một yêu cầu phê duyệt có nội dung nội dung:<br>
                     - Phê duyệt khởi tạo cấu hình {request_template.upper()}<br>
                     - Tiêu đề: {request_subject} <br>
-                    - Chi tiết cấu hình xem tại: <a target="_blank" href="https://nssa.dc.vn/servicedesk/citrix/{request_id}">https://nssa.cpc.vn/servicedesk/{request_template}/{request_id}</a><br><br>
-                    - Lời nhắn: {message} <br><br>
-                    Thông tin người yêu cầu:
+                    - Chi tiết cấu hình: <a target="_blank" href="https://nssa.cpc.vn/servicedesk/{request_template}/{request_id}">https://nssa.cpc.vn/servicedesk/{request_template}/{request_id}</a><br>
+                    - Lời nhắn: {message} <br>
+                    Thông tin người yêu cầu:<br>
                     - Email: {requester_email}<br>
                     - Mobile: {requester_mobile}<br><br>
 
@@ -202,19 +202,23 @@ class ServiceDeskPlus:
             return {"code": 0, "message": "Exception occurs during get request information from hotrocntt.cpc.vn"}
         return {"code": 1, "message": request_details.get("request").get("approval_status")}
 
-    def check_request_is_valid(self,request_id) -> dict:
+    def check_request_is_valid(self,request_id,request_template=None) -> dict:
         request_details = self.get_requests(request_id=request_id)
         if type(request_details) is not dict:
             return {"code": 0, "message": "Exception occurs during get request information from hotrocntt.cpc.vn"}
         if request_details.get("response_status").get("status_code") == 4000:
             return False
         if request_details.get("response_status").get("status_code") == 2000:
-            if request_details.get("request").get("udf_fields") is not None:
-                pass
-            if request_details.get("request").get("udf_fields").get("udf_sline_3019") is not None:
-                pass
+            if request_details.get("request").get("udf_fields") is None:
+                return False
+            if request_details.get("request").get("udf_fields").get("udf_sline_3019") is None:
+                return False
             if request_details.get("request").get("udf_fields").get("udf_sline_3019") not in ["citrix","firewall"]:
                 return False
-        return True
+            if request_template is not None:
+                if request_details.get("request").get("udf_fields").get("udf_sline_3019") != request_template:
+                    return False
+            return True
+        return False
 
     

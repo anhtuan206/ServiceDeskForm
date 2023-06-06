@@ -491,6 +491,70 @@ class FirewallRule:
 
     # ===KHÔNG SỬ DỤNG===
 
+class Firewall:
+    def __init__(
+        self, database="netsecops", host="10.72.28.249", user="python", password=""
+    ):
+        self.database = database
+        self.host = host
+        self.user = user
+        self.password = password
+        self.dbconnect = None
+
+    def connect(self):
+        try:
+            self.dbconnect = mysql.connector.connect(
+                database=self.database,
+                host=self.host,
+                user=self.user,
+                password=self.password,
+            )
+        except mysql.connector.Error as err:
+            message = {"code": 0, "data": err.msg}
+            return message
+
+    def execute_query(self, query, data=None, dictionary=True):
+        try:
+            cursor = self.dbconnect.cursor(dictionary=dictionary)
+            cursor.execute(query, data)
+            result = cursor.fetchall()
+            cursor.close()
+            return result
+        except (mysql.connector.IntegrityError, mysql.connector.DataError) as err:
+            message = {"code": 0, "data": err.msg}
+            return message
+        except mysql.connector.ProgrammingError as err:
+            message = {"code": 0, "data": err.msg}
+            return message
+        except mysql.connector.Error as err:
+            message = {"code": 0, "data": err.msg}
+            return message
+
+    def disconnect(self):
+        self.dbconnect.close()
+    # Lấy thông tin từ bảng servicedeskrequests
+    def get_servicedesk_firewall_request(self, requestid=None):
+        try:
+            query = f"SELECT * FROM servicedeskrequests"
+            conditions = []
+            if requestid is not None:
+                conditions.append(f"requestid LIKE '{requestid}'")
+            if conditions:
+                query += " WHERE " + " AND ".join(conditions)
+            self.connect()
+            result = self.execute_query(query=query, dictionary=True)
+            self.disconnect()
+            message = {"code": 1, "data": result}
+            return message
+        except (mysql.connector.IntegrityError, mysql.connector.DataError) as err:
+            message = {"code": 0, "data": err.msg}
+            return message
+        except mysql.connector.ProgrammingError as err:
+            message = {"code": 0, "data": err.msg}
+            return message
+        except mysql.connector.Error as err:
+            message = {"code": 0, "data": err.msg}
+            return message
 
 class Citrix:
     def __init__(
@@ -818,7 +882,7 @@ class Citrix:
 
     # Tạo dữ liệu mới cho bảng citrix_user_submit_lb
     def insert_citrix_lb(
-        self, requestid, lbid=None, vip=None, name=None, description=None
+        self, requestid, lbid=None, vip=None, name=None, description=None,lastrowid = False
     ):
         try:
             dataset = {}
@@ -840,6 +904,8 @@ class Citrix:
             cursor.execute(query)
             self.dbconnect.commit()
             self.disconnect()
+            if lastrowid is True:
+                return cursor.lastrowid
             return True
         except (mysql.connector.IntegrityError, mysql.connector.DataError) as err:
             message = {"code": 0, "error": err.msg}

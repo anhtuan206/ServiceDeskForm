@@ -10,7 +10,7 @@ services:
     # volumes:
       # - /data/docker_bindmount_volumes/servicedesk_webhook:/code/logs
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://10.72.119.23:51802/servicedesk/"]
+      test: ["CMD", "curl", "-f", "http://10.72.119.23:51806/servicedesk/"]
       interval: 1m30s
       timeout: 10s
       retries: 3

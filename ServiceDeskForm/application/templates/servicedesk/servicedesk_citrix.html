@@ -40,11 +40,12 @@
                 {%if approval_status is defined%}
                 {%if approval_status.code == 1 and approval_status.message is none %}
                 <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                  id="btn-open-modal-{{requestid}}" data-requestid="{{requestid}}" onclick="open_modal(this)">Gửi phê duyệt</button>
-                {% endif %}
-                {% endif %}
+                  id="btn-open-modal-{{requestid}}" data-requestid="{{requestid}}" onclick="open_modal(this)">Gửi phê
+                  duyệt</button>
                 <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2" onclick="AddForm()">Thêm Cấu
                   Hình</button>
+                {% endif %}
+                {% endif %}
                 {% endif %}
               </div>
             </div>
@@ -61,46 +62,46 @@
               <div class="d-flex p-2 justify-content-end">
                 <!-- Hiển thị lỗi dữ liệu không hợp lệ -->
                 {%if case == 1 or case == 2 %}
-                <div class="alert alert-warning" role="alert">
-                  {{data.data}}
-                </div>
+                  <div class="alert alert-warning" role="alert">
+                    {{data.data}}
+                  </div>
                 {%endif%}
                 <!-- Hiển thị lỗi dữ liệu không hợp lệ -->
                 <!-- Trường hợp 1 - có sẵn dữ liệu -->
                 {%if case != 1 and case != 2 %}
                 {% if approval_status is defined %}
-                <div class="py-1 px-2">
-                  Trạng thái phê duyệt:
-                </div>
-                {% if approval_status.code == 1 %}
-                <!-- reject -->
-                {% if approval_status.message.id == "3" %}
-                <div class=" px-2 py-1 danger-color text-white rounded">
-                  {{approval_status.message.name}}
-                </div>
-                <!-- approved -->
-                {% elif approval_status.message.id == "2" %}
-                <div class=" px-2 py-1 success-color text-white rounded">
-                  {{approval_status.message.name}}
-                </div>
-                <!-- pending approval -->
-                {% elif approval_status.message.id == "1" %}
-                <div class=" px-2 py-1 info-color text-white rounded">
-                  {{approval_status.message.name}}
-                </div>
-                <!-- not yet submit for approval -->
-                {% else%}
-                <div class=" px-2 py-1 rounded">
-                  Chưa tạo phê duyệt
-                </div>
-                {% endif %}
-                {%else%}
-                <div class="border border-black">
-                  {{approval_status.message}}
-                </div>
+                  <div class="py-1 px-2">
+                    Trạng thái phê duyệt:
+                  </div>
+                  {% if approval_status.code == 1 %}
+                  <!-- reject -->
+                    {% if approval_status.message.id == "3" %}
+                    <div class=" px-2 py-1 danger-color text-white rounded">
+                      {{approval_status.message.name}}
+                    </div>
+                    <!-- approved -->
+                    {% elif approval_status.message.id == "2" %}
+                    <div class=" px-2 py-1 success-color text-white rounded">
+                      {{approval_status.message.name}}
+                    </div>
+                    <!-- pending approval -->
+                    {% elif approval_status.message.id == "1" %}
+                    <div class=" px-2 py-1 info-color text-white rounded">
+                      {{approval_status.message.name}}
+                    </div>
+                    <!-- not yet submit for approval -->
+                    {% else%}
+                    <div class=" px-2 py-1 rounded">
+                      Chưa tạo phê duyệt
+                    </div>
+                    {% endif %}
+                  {%else%}
+                    <div class="border border-black">
+                      {{approval_status.message}}
+                    </div>
+                  {% endif %}
                 {% endif %}
               </div>
-              {% endif %}
 
               <div class="table-responsive">
                 <!--Table-->
@@ -298,6 +299,8 @@
                     <!-- Trường hợp 1 -  đã có dữ liệu -->
                     <!-- Trường hợp 2 - không có dữ liệu - render form trắng -->
                     {%if case == 3 %}
+                    {%if approval_status is defined%}
+                    {%if approval_status.code == 1 and approval_status.message is none %}
                     <tr id="row-0">
                       <!-- Index Column -->
                       <td>
@@ -405,6 +408,8 @@
                       </td>
                       <!-- Functional Column -->
                     </tr>
+                    {%endif%}
+                    {%endif%}
                     {%endif%}
                     <!-- Trường hợp 2 - không có dữ liệu - render form trắng -->
                   </tbody>
@@ -628,7 +633,7 @@
     <!-- Server column -->
     <td>
       <div id="server-array-${lbid}">
-        <div class="input-group  data-edit" id="input-group-server-${lbid}-0" data-lbid="${lbid}"
+        <div class="input-group  data-edit" id="input-group-server-${lbid}-${objectid}" data-lbid="${lbid}"
           data-requestid="${requestid}" data-objectid="${objectid}">
           <input type="text" class="form-control form-control-sm data-edit" placeholder="Tên máy chủ"
             id="input-servername-${lbid}-${objectid}" data-lbid="${lbid}" data-requestid="${requestid}" data-objectid="${objectid}">
@@ -911,9 +916,11 @@
           location.reload();
         }
         else {
+          console.log(result)
           message = null;
           if (result.error) { message = result.error }
           if (result.data) { message = result.data }
+          if (result.message) { message = result.message }
           document.getElementById("alert_content").innerText = message;
           document.getElementById("tbl_alert").removeAttribute("hidden", true)
         }
