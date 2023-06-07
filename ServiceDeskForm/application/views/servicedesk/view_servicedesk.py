@@ -504,7 +504,7 @@ def post_servicedesk_citrix(requestid):
 
     def validate_data(postData):
         message = {"code": 0, "data": None}
-        if not validate_ipaddress(postData.get("vip")):
+        if not validate_ipaddress(postData.get("vip")) and len(postData.get("vip")) > 0:
             message["data"] = f"Địa chỉ VIP không hợp lệ! {postData.get('vip')}"
             return message
         if type(postData.get("description")) is not str:
@@ -654,7 +654,7 @@ def put_servicedesk_citrix(requestid):
 
     def validate_data(postData):
         message = {"code": 0, "data": None}
-        if not validate_ipaddress(postData.get("vip")):
+        if not validate_ipaddress(postData.get("vip"))  and len(postData.get("vip")) > 0:
             message["data"] = f"Địa chỉ VIP không hợp lệ! {postData.get('vip')}"
             return message
         if type(postData.get("description")) is not str:
