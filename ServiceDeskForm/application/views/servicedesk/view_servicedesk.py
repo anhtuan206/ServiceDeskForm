@@ -4,10 +4,10 @@ from email_validator import validate_email, EmailNotValidError
 from ...database import FirewallRule, Firewall
 from ...database import Citrix
 from ...api.manage_engine import ServiceDeskPlus
+from datetime import datetime
 import ipaddress
 
 urllib3.disable_warnings()
-
 bp_servicedesk = Blueprint("servicedesk", __name__, url_prefix="/servicedesk")
 
 mysql_firewall = FirewallRule()
@@ -25,54 +25,6 @@ def servicedesk_root():
 
 
 # Root Section
-
-
-# Firewall Section New
-@bp_servicedesk.get("/firewall1/<string:requestid>")
-def view_servicedesk_firewall1(requestid):
-    servicedesk_request = mysql_firewall_new.get_servicedesk_firewall_request(
-        requestid=requestid
-    )
-    if servicedesk_request.get("code") == 0:
-        return render_template(
-            "servicedesk/servicedesk_citrix.html",
-            requestid=requestid,
-            case=1,
-            data=servicedesk_request,
-        )
-    # Case 1: Ticket không tồn tại trong hệ thống -> trả về thông báo lỗi
-    if servicedesk_request["code"] == 1 and not len(servicedesk_request["data"]) > 0:
-        if hotrocntt.check_request_is_valid(request_id=requestid) is True:
-            result = mysql_citrix.insert_citrix_servicedeskrequest(requestid=requestid)
-            if result is not True:
-                return render_template(
-                    "servicedesk/servicedesk_citrix.html",
-                    requestid=requestid,
-                    case=1,
-                    data={
-                        "code": 0,
-                        "data": f"Lỗi khi nhập yêu cầu vào cơ sở dữ liệu",
-                    },
-                )
-            return render_template(
-                "servicedesk/servicedesk_citrix.html",
-                requestid=requestid,
-                case=3,
-                data=mysql_citrix.get_servicedesk_citrix_request(requestid=requestid),
-                approval_status=hotrocntt.get_request_approval_status(
-                    request_id=requestid
-                ),
-            )
-        return render_template(
-            "servicedesk/servicedesk_citrix.html",
-            requestid=requestid,
-            case=1,
-            data={"code": 0, "data": f"Request_id {requestid} không hợp lệ!"},
-        )
-
-
-# Firewall Section New
-
 # Firewall Section
 
 
@@ -121,6 +73,7 @@ def get_servicedesk_firewall(requestid):
         requestid=requestid,
         request_data=request_data["data"],
         approval_status=hotrocntt.get_request_approval_status(request_id=requestid),
+        timestamp=int(datetime.now().timestamp()),
     )
 
 
@@ -136,7 +89,7 @@ def post_servicedesk_firewall(requestid):
     def validate_new_rule_data(form_data):
         result = {"code": 0, "message": None}
         if not requestid == form_data.get("requestid"):
-            message = "RequestID không hợp lệ!"
+            result["message"] = "RequestID không hợp lệ!"
             return result
         name = form_data.get("name")
         if not name or not len(name) > 0:
@@ -214,22 +167,15 @@ def delete_servicedesk_firewall(requestid):
             result = mysql_firewall.remove_user_submit_rule(
                 requestid=requestid, ruleid=jsonData["ruleid"]
             )
-            if result["code"] == 1:
-                return make_response(result, 200)
-            else:
-                message = jsonify(code="0", message="Error")
-                return make_response(message, 200)
+            return make_response(jsonify(result), 200)
         if jsonData["type"] in ["source", "destination", "service"]:
             result = mysql_firewall.remove_firewall_user_submit_object(
                 ruleid=jsonData["ruleid"],
                 objectid=jsonData["objectid"],
-                dtype=jsonData["type"],
+                data_type=jsonData["type"],
             )
-            if result["code"] == 1:
-                return make_response(result, 200)
-            else:
-                message = jsonify(code="0", message="Error")
-                return make_response(message, 200)
+            return make_response(jsonify(result), 200)
+    return make_response(jsonify({"code": 0, "message": "Lỗi không xác định!"}), 200)
 
 
 """ Delete form record """
@@ -286,6 +232,9 @@ def put_servicedesk_firewall(requestid):
                 if type(service["value"]) is not int or service["value"] is None:
                     result["message"] = "Cổng kết nối không hợp lệ!"
                     return result
+                if service["protocol"] not in ["TCP","UDP","ICMP","HTTP","HTTPS"]:
+                    result["message"] = "Giao thức không hợp lệ!"
+                    return result
         return True
 
     # Validate form update data
@@ -307,15 +256,27 @@ def put_servicedesk_firewall(requestid):
                 return make_response(jsonify(result), 200)
             datatype = ["sources", "destinations", "services"]
             for item in datatype:
-                for element in jsonData[item]:
-                    result = mysql_firewall.update_firewall_user_submit_object(
-                        ruleid=element.get("ruleid"),
-                        objectid=element.get("objectid"),
-                        datatype=item,
-                        value=element.get("value"),
-                    )
-                    if result is not True:
-                        return make_response(jsonify(result), 200)
+                if item == "services":
+                    for element in jsonData[item]:
+                        result = mysql_firewall.update_firewall_user_submit_object(
+                            ruleid=element.get("ruleid"),
+                            objectid=element.get("objectid"),
+                            datatype=item,
+                            value=element.get("value"),
+                            servicetype=element.get("protocol")
+                        )
+                        if result is not True:
+                            return make_response(jsonify(result), 200)
+                else:
+                    for element in jsonData[item]:
+                        result = mysql_firewall.update_firewall_user_submit_object(
+                            ruleid=element.get("ruleid"),
+                            objectid=element.get("objectid"),
+                            datatype=item,
+                            value=element.get("value"),
+                        )
+                        if result is not True:
+                            return make_response(jsonify(result), 200)
             return make_response(jsonify({"code": 1, "message": "Success"}), 200)
         else:
             return make_response(
@@ -530,6 +491,7 @@ def post_servicedesk_citrix(requestid):
                 "UDP",
                 "HTTP",
                 "HTTPS",
+                "ICMP"
             ]:
                 message["data"] = f"Giao thức ko hợp lệ! {item.get('protocol')}"
                 return message
@@ -654,7 +616,7 @@ def put_servicedesk_citrix(requestid):
 
     def validate_data(postData):
         message = {"code": 0, "data": None}
-        if not validate_ipaddress(postData.get("vip"))  and len(postData.get("vip")) > 0:
+        if not validate_ipaddress(postData.get("vip")) and len(postData.get("vip")) > 0:
             message["data"] = f"Địa chỉ VIP không hợp lệ! {postData.get('vip')}"
             return message
         if type(postData.get("description")) is not str:
@@ -680,6 +642,7 @@ def put_servicedesk_citrix(requestid):
                 "UDP",
                 "HTTP",
                 "HTTPS",
+                "ICMP"
             ]:
                 message["data"] = f"Giao thức ko hợp lệ! {item.get('protocol')}"
                 return message
@@ -733,7 +696,7 @@ def delete_servicedesk_citrix(requestid):
         )
         if result is not True:
             return make_response(jsonify(result), 200)
-    if jsonData.get("type") == "service":
+    if jsonData.get("type") == "serviceandprotocol":
         lbid = jsonData.get("lbid")
         objectid = jsonData.get("objectid")
         result = mysql_citrix.delete_citrix_service(

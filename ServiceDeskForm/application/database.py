@@ -250,7 +250,7 @@ class FirewallRule:
             cursor.execute(query)
             self.dbconnect.commit()
             self.disconnect()
-            return True
+            return {"code": 1, "message": "Success"}
         except (mysql.connector.IntegrityError, mysql.connector.DataError) as err:
             message = {"code": 0, "error": err.msg}
             return message
@@ -262,16 +262,16 @@ class FirewallRule:
             return message
 
     # Cập nhật dữ liệu object
-    def update_firewall_user_submit_object(self, ruleid, objectid, datatype, value):
+    def update_firewall_user_submit_object(self, ruleid, objectid, datatype, value,servicetype=None):
         if datatype not in ["sources", "destinations", "services"]:
-            return {"code": 0, "error": "Kiểu dữ liệu datatype không hợp lệ"}
+            return {"code": 0, "error": f"Kiểu dữ liệu {datatype} không hợp lệ"}
         try:
             if datatype == "sources":
                 query = f"UPDATE firewall_user_submit_source SET source = '{value}' WHERE id = {objectid} AND ruleid = {ruleid}"
             if datatype == "destinations":
                 query = f"UPDATE firewall_user_submit_destination SET destination = '{value}' WHERE id = {objectid} AND ruleid = {ruleid}"
             if datatype == "services":
-                query = f"UPDATE firewall_user_submit_service SET port = {value} WHERE id = {objectid} AND ruleid = {ruleid}"
+                query = f"UPDATE firewall_user_submit_service SET port = {value},protocol = '{servicetype}' WHERE id = {objectid} AND ruleid = {ruleid}"
             self.connect()
             cursor = self.dbconnect.cursor()
             cursor.execute(query)

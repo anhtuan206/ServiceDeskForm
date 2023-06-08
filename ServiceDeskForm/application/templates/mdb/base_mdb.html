@@ -24,7 +24,6 @@
         <!-- <div id="slide-out" class="side-nav sn-bg-4 fixed"> -->
         <div id="slide-out" class="side-nav fixed">
             <ul class="custom-scrollbar">
-
                 <!-- Logo -->
                 <li class="logo-sn waves-effect py-3">
                     <div class="text-center">
@@ -32,10 +31,9 @@
                                 style="
                             width: inherit;
                             height: inherit;
-                        "></a>
+                        " title="Logo"></a>
                     </div>
                 </li>
-
                 <!-- Search Form -->
                 <li>
                     <form class="search-form" role="search">
@@ -70,14 +68,14 @@
             <div class="d-flex change-mode">
 
                 <div class="ml-auto mb-0 mr-3 change-mode-wrapper">
-                    <button class="btn btn-outline-black btn-sm" id="dark-mode"><i class="fas fa-moon"></i></button>
+                    <button class="btn btn-outline-black btn-sm" id="dark-mode" title="Dark Mode"><i class="fas fa-moon"></i></button>
                 </div>
 
                 <!-- Navbar links -->
                 <ul class="nav navbar-nav nav-flex-icons ml-auto">
                     <!-- Login button -->
                     <li class="nav-item">
-                        <button class="btn btn-outline-black btn-sm">Login</button>
+                        <button class="btn btn-outline-black btn-sm" title="Login">Đăng nhập</button>
                     </li>
                     <!-- Login button -->
 
@@ -105,7 +103,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename = 'mdb/js/bootstrap.js')}}"></script>
     <!-- MDB core JavaScript -->
     <script type="text/javascript" src="{{ url_for('static', filename = 'mdb/js/mdb.min.js')}}"></script>
-    
+
 
     {% block script %}
 
