@@ -8,6 +8,12 @@ from datetime import datetime
 import ipaddress
 
 urllib3.disable_warnings()
+
+bp_rootview = Blueprint("rootview",__name__,url_prefix="/")
+@bp_rootview.get("/")
+def rootview():
+    return "Hello World!"
+
 bp_servicedesk = Blueprint("servicedesk", __name__, url_prefix="/servicedesk")
 
 mysql_firewall = FirewallRule()

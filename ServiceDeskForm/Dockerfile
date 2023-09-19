@@ -7,6 +7,6 @@ WORKDIR /code
 RUN mkdir /code/logs
 RUN chmod +x gunicorn.sh
 RUN pip install -r requirements.txt
-EXPOSE 51806
+EXPOSE 51813
 ENTRYPOINT ["./gunicorn.sh"]
 # ENTRYPOINT ["python","app.py"]

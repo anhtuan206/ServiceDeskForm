@@ -6,11 +6,11 @@ services:
     container_name: ServiceDeskForm
     restart: unless-stopped
     ports: 
-      - '51806:51806'
+      - '51813:51813'
     # volumes:
       # - /data/docker_bindmount_volumes/servicedesk_webhook:/code/logs
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://10.72.119.23:51806/servicedesk/"]
+      test: ["CMD", "curl", "-f", "http://10.72.119.23:51813/servicedesk/"]
       interval: 1m30s
       timeout: 10s
       retries: 3
