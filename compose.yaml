@@ -1,5 +1,5 @@
 services:
-  servicedesk-webhook:
+  servicedeskform:
     build:
       context: ServiceDeskForm
     image: nssa/servicedeskform:latest
@@ -7,6 +7,8 @@ services:
     restart: unless-stopped
     ports: 
       - '51813:51813'
+    networks:
+      - servicedeskform
     # volumes:
       # - /data/docker_bindmount_volumes/servicedesk_webhook:/code/logs
     healthcheck:
@@ -15,3 +17,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+networks:
+  servicedeskform:
+    name: servicedeskform
+    driver: bridge
