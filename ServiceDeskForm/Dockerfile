@@ -1,6 +1,7 @@
 FROM python:alpine
 ARG port=51813
 # USER root
+RUN whoiam
 RUN apk add --no-cache gcc
 RUN apk add --no-cache curl
 RUN pip install --upgrade pip
