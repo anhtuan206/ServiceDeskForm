@@ -30,10 +30,12 @@ node {
     def testPort = 51814;
     def imageName = 'nssa/servicedeskform1';
     def testTag = 'test';
+    sh "docker stop ${testContainerName}";
+    sh "docker rm ${testContainerName}";
     sh "docker run -d --name ${testContainerName} -p ${testPort}:51813 ${imageName}:${testTag}";
   }
   stage("6. CHẠY KỊCH BẢN KIỂM THỬ") {
-    sh "'echo Kịch bản kiểm thử'";
+    sh "echo 'Kịch bản kiểm thử'";
   }
   stage("7. TRIỂN KHAI MÔI TRƯỜNG CHÍNH THỨC") {
     def imageName = 'nssa/servicedeskform1';
