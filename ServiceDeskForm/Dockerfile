@@ -1,6 +1,6 @@
 FROM python:alpine
 ARG port=51813
-USER root
+# USER root
 RUN apk add --no-cache gcc
 RUN apk add --no-cache curl
 RUN pip install --upgrade pip
@@ -10,5 +10,5 @@ RUN mkdir /code/logs
 RUN chmod +x gunicorn.sh
 RUN pip install -r requirements.txt
 EXPOSE ${port}
-ENTRYPOINT ["./gunicorn.sh"]
-# ENTRYPOINT ["python","app.py"]
+# ENTRYPOINT ["./gunicorn.sh"]
+ENTRYPOINT ["python","app.py"]

@@ -3,8 +3,8 @@ from application import create_app
 app = create_app()
 
 # Chạy ứng dụng ở mode debug của Flask
-# if __name__ == '__main__':
-#     app.run(debug=True,host='0.0.0.0',port=51806)
+if __name__ == '__main__':
+    app.run(debug=True,host='0.0.0.0',port=51813)
 
 
 # Chạy ứng dụng ở mode ASGI
