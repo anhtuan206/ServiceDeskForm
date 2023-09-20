@@ -130,7 +130,7 @@ pipeline {
         }
       }
     }
-    stage("8. Kiểm tra hoạt động trên môi trường chính thức")
+    stage("8. Kiểm tra hoạt động trên môi trường chính thức") {
       steps {
         script {
           def websiteUrl = "http://docker01.dc.vn:51813"
@@ -148,5 +148,6 @@ pipeline {
           }
         }
       }
+    }
   }
 }
