@@ -3,7 +3,9 @@ pipeline {
 
   stages {
     stage('1. LẤY MÃ NGUỒN TỪ GIT REPOSITORY') {
-      checkout scm
+      steps {
+        checkout scm
+      }
     }
     stage('2. QUÉT MÃ NGUỒN VỚI SONARQUBE SCANNER') {
       steps {
