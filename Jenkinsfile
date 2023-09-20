@@ -25,7 +25,7 @@ node {
     def testPort = 51814;
     sh "docker stop ${testContainerName}";
     sh "docker rm ${testContainerName}";
-    sh "docker image rm ${imageName}:${testTag}";
+    sh "docker image rm ${imageName}:${testTag} -f";
     sh "docker build --file ./ServiceDeskForm/Dockerfile --tag ${imageName}:${testTag} --build-arg port=${testPort} .";
   }
   stage("5. TRIỂN KHAI MÔI TRƯỜNG KIỂM THỬ") {
