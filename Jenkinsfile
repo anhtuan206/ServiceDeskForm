@@ -35,8 +35,8 @@ pipeline {
       steps {
         script {
           def imageName = 'nssa/servicedeskform1';
-          def testContainerName = 'servicedeskform1_test';
           def testTag = 'test';
+          def testContainerName = 'servicedeskform1_test';
           def testPort = 51814;
           // Check if the Docker container exists
           def containerExists = sh(script: "docker ps -a --format '{{.Names}}' | grep -q '^${testContainerName}\$'", returnStatus: true)
@@ -78,10 +78,27 @@ pipeline {
           def websiteUrl = "http://docker01.dc.vn:51814"
           def maxRetries = 3
           def retryCount = 0
+          def testContainerName = 'servicedeskform1_test';
+          def imageName = 'nssa/servicedeskform1';
+          def testTag = 'test';
           timeout(time: 3, unit: 'MINUTES') {
             waitUntil {
               try {         
                 sh "curl -s --head  --request GET $websiteUrl | grep '200 OK'"
+                def containerExists = sh(script: "docker ps -a --format '{{.Names}}' | grep -q '^${testContainerName}\$'", returnStatus: true)
+                if (containerExists == 0) {
+                    sh "docker stop ${testContainerName}"
+                    sh "docker rm ${testContainerName}"
+                    echo "Kiểm thử thành công. Ứng dụng hoạt động tốt."
+                } else {
+                    echo "Docker container '${testContainerName}' does not exist."
+                }
+                def imageExists = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep -q '^${imageName}:${testTag}\$'", returnStatus: true)
+                if (imageExists == 0) {
+                    sh "docker image rm ${imageName}:${testTag} -f";
+                } else {
+                    echo "Docker image '${imageName}' does not exist."
+                }
                 return true
               } catch (Exception e) {
                 return false
