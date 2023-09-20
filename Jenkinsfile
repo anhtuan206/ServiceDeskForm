@@ -22,10 +22,14 @@ node {
     def latestTag = 'lts';
     def testTag = 'test';
     def testPort = 51814;
+    sh "docker image rm ${imageName}:${testTag}";
     sh "docker build --file ./ServiceDeskForm/Dockerfile --tag ${imageName}:${testTag} --build-arg port=${testPort} .";
   }
   stage("5. TRIỂN KHAI MÔI TRƯỜNG KIỂM THỬ") {
     def testContainerName = 'servicedeskform1_test';
+    def testPort = 51814;
+    def imageName = 'nssa/servicedeskform1';
+    def testTag = 'test';
     sh "docker run -d --name ${testContainerName} -p ${testPort}:51813 ${imageName}:${testTag}";
   }
   stage("6. CHẠY KỊCH BẢN KIỂM THỬ") {
@@ -36,6 +40,8 @@ node {
     def prodContainerName = 'servicedeskform1_test';
     def latestTag = 'lts';
     def prodPort = 51813;
+    def rollBacktag = 'rollback';
+
     sh "docker image rm ${imageName}:${rollBacktag}";
     sh "docker image tag ${imageName}:${latestTag} ${imageName}:${rollBacktag}";
     sh "docker stop ${prodContainerName}";
