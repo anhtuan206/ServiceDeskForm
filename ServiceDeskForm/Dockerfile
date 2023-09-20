@@ -7,7 +7,7 @@ RUN pip install --upgrade pip
 COPY  . /code
 WORKDIR /code
 RUN mkdir /code/logs
-RUN chmod +x gunicorn.sh
+# RUN chmod +x gunicorn.sh
 RUN pip install -r requirements.txt
 EXPOSE ${port}
 # ENTRYPOINT ["./gunicorn.sh"]
