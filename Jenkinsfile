@@ -22,6 +22,8 @@ node {
     def latestTag = 'lts';
     def testTag = 'test';
     def testPort = 51814;
+    sh "docker stop ${testContainerName}";
+    sh "docker rm ${testContainerName}";
     sh "docker image rm ${imageName}:${testTag}";
     sh "docker build --file ./ServiceDeskForm/Dockerfile --tag ${imageName}:${testTag} --build-arg port=${testPort} .";
   }
@@ -30,8 +32,6 @@ node {
     def testPort = 51814;
     def imageName = 'nssa/servicedeskform1';
     def testTag = 'test';
-    sh "docker stop ${testContainerName}";
-    sh "docker rm ${testContainerName}";
     sh "docker run -d --name ${testContainerName} -p ${testPort}:51813 ${imageName}:${testTag}";
   }
   stage("6. CHẠY KỊCH BẢN KIỂM THỬ") {
