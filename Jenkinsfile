@@ -4,24 +4,30 @@ pipeline {
   stages {
     stage('1. LẤY MÃ NGUỒN TỪ GIT REPOSITORY') {
       steps {
-        checkout scm
+        script {
+          checkout scm
+        }
       }
     }
     stage('2. QUÉT MÃ NGUỒN VỚI SONARQUBE SCANNER') {
       steps {
-        def scannerHome = tool 'SonarScanner';
-        withSonarQubeEnv() {
-          sh "${scannerHome}/bin/sonar-scanner"
+        script {
+          def scannerHome = tool 'SonarScanner';
+          withSonarQubeEnv() {
+            sh "${scannerHome}/bin/sonar-scanner"
+          }
         }
       }
     }
     stage("3. PHẢN HỒI KẾT QUẢ QUÉT MÃ NGUỒN") {
       steps {
-        timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
-          def qg = waitForQualityGate(); // Reuse taskId previously collected by withSonarQubeEnv
-            if (qg.status != 'OK') {
-              error "Kết quả: Mã nguồn không đạt yêu cầu ${qg.status}"
-            }
+        script {
+          timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
+            def qg = waitForQualityGate(); // Reuse taskId previously collected by withSonarQubeEnv
+              if (qg.status != 'OK') {
+                error "Kết quả: Mã nguồn không đạt yêu cầu ${qg.status}"
+              }
+          }
         }
       }
     }
@@ -56,11 +62,13 @@ pipeline {
     }
     stage("5. TRIỂN KHAI MÔI TRƯỜNG KIỂM THỬ") {
       steps {
-        def testContainerName = 'servicedeskform1_test';
-        def testPort = 51814;
-        def imageName = 'nssa/servicedeskform1';
-        def testTag = 'test';
-        sh "docker run -d --name ${testContainerName} -p ${testPort}:51813 ${imageName}:${testTag}";
+        script {
+          def testContainerName = 'servicedeskform1_test';
+          def testPort = 51814;
+          def imageName = 'nssa/servicedeskform1';
+          def testTag = 'test';
+          sh "docker run -d --name ${testContainerName} -p ${testPort}:51813 ${imageName}:${testTag}";
+        }
       }
     }
     stage("6. CHẠY KỊCH BẢN KIỂM THỬ") {
