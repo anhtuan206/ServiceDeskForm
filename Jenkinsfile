@@ -22,25 +22,25 @@ node {
     def latestTag = 'lts';
     def testTag = 'test';
     def testPort = 51814;
-    sh 'docker build --file Dockerfile --tag ${imageName}:${testTag} --build-arg port=${testPort}';
+    sh "docker build --file Dockerfile --tag ${imageName}:${testTag} --build-arg port=${testPort}";
   }
   stage("5. TRIỂN KHAI MÔI TRƯỜNG KIỂM THỬ") {
     def testContainerName = 'servicedeskform1_test';
-    sh 'docker run -d --name ${testContainerName} -p ${testPort}:51813 ${imageName}:${testTag}';
+    sh "docker run -d --name ${testContainerName} -p ${testPort}:51813 ${imageName}:${testTag}";
   }
   stage("6. CHẠY KỊCH BẢN KIỂM THỬ") {
-    sh 'echo "Kịch bản kiểm thử"';
+    sh "'echo Kịch bản kiểm thử'";
   }
   stage("7. TRIỂN KHAI MÔI TRƯỜNG CHÍNH THỨC") {
     def imageName = 'nssa/servicedeskform1';
     def prodContainerName = 'servicedeskform1_test';
     def latestTag = 'lts';
     def prodPort = 51813;
-    sh 'docker image rm ${imageName}:${rollBacktag}';
-    sh 'docker image tag ${imageName}:${latestTag} ${imageName}:${rollBacktag}';
-    sh 'docker stop ${prodContainerName}';
-    sh 'docker rm ${prodContainerName}';
-    sh 'docker run -d --name ${prodContainerName} -p ${prodPort}:51813 ${imageName}:${latestTag}';
+    sh "docker image rm ${imageName}:${rollBacktag}";
+    sh "docker image tag ${imageName}:${latestTag} ${imageName}:${rollBacktag}";
+    sh "docker stop ${prodContainerName}";
+    sh "docker rm ${prodContainerName}";
+    sh "docker run -d --name ${prodContainerName} -p ${prodPort}:51813 ${imageName}:${latestTag}";
 
   }
 }
