@@ -12,7 +12,7 @@ urllib3.disable_warnings()
 bp_rootview = Blueprint("rootview",__name__,url_prefix="/")
 @bp_rootview.get("/")
 def rootview():
-    return "Hello World!"
+    return "Xin chào, đây là quy trình triển khai phần mềm CICD"
 
 bp_servicedesk = Blueprint("servicedesk", __name__, url_prefix="/servicedesk")
 
