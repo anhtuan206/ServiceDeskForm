@@ -4,13 +4,13 @@ ARG port=51813
 RUN apk add --no-cache gcc
 RUN apk add --no-cache curl
 RUN pip install --upgrade pip
-COPY  . /code
+COPY  ./ServiceDeskForm/ /code
 WORKDIR /code
 RUN mkdir /code/logs
 # RUN chmod +x gunicorn.sh
 RUN pwd
 RUN ls
-RUN pip install -r ./ServiceDeskForm/requirements.txt
+RUN pip install -r ./requirements.txt
 EXPOSE ${port}
 # ENTRYPOINT ["./gunicorn.sh"]
 ENTRYPOINT ["python","app.py"]
