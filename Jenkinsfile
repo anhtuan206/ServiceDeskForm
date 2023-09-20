@@ -3,48 +3,21 @@ pipeline {
 
   stages {
     stage('1. LẤY MÃ NGUỒN TỪ GIT REPOSITORY') {
-      checkout scm
-      }
-      stage('2. QUÉT MÃ NGUỒN VỚI SONARQUBE SCANNER') {
-      def scannerHome = tool 'SonarScanner';
-      withSonarQubeEnv() {
-        sh "${scannerHome}/bin/sonar-scanner"
-      }
-      }
-      stage("3. PHẢN HỒI KẾT QUẢ QUÉT MÃ NGUỒN") {
-      timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
-        def qg = waitForQualityGate(); // Reuse taskId previously collected by withSonarQubeEnv
-          if (qg.status != 'OK') {
-            error "Kết quả: Mã nguồn không đạt yêu cầu ${qg.status}"
-          }
-      }
-    }
-    stage('Check and Remove Docker Container and Image') {
       steps {
-        script {
-          def containerName = 'servicedeskform1_test1'
-          def imageName = 'my_image'
-
-          // Check if the Docker container exists
-          def containerExists = sh(script: "docker ps -a --format '{{.Names}}' | grep -q '^${containerName}\$'", returnStatus: true)
-
-          // Check if the Docker image exists
-          def imageExists = sh(script: "docker images --format '{{.Repository}}:{{.Tag}}' | grep -q '^${imageName}\$'", returnStatus: true)
-
-          // Remove the Docker container if it exists
-          if (containerExists == 0) {
-              sh "docker stop ${containerName}"
-              sh "docker rm ${containerName}"
-          } else {
-              echo "Docker container '${containerName}' does not exist."
-          }
-
-          // Remove the Docker image if it exists
-          if (imageExists == 0) {
-              sh "docker rmi ${imageName}"
-          } else {
-              echo "Docker image '${imageName}' does not exist."
-          }
+        checkout scm
+        }
+        stage('2. QUÉT MÃ NGUỒN VỚI SONARQUBE SCANNER') {
+        def scannerHome = tool 'SonarScanner';
+        withSonarQubeEnv() {
+          sh "${scannerHome}/bin/sonar-scanner"
+        }
+        }
+        stage("3. PHẢN HỒI KẾT QUẢ QUÉT MÃ NGUỒN") {
+        timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
+          def qg = waitForQualityGate(); // Reuse taskId previously collected by withSonarQubeEnv
+            if (qg.status != 'OK') {
+              error "Kết quả: Mã nguồn không đạt yêu cầu ${qg.status}"
+            }
         }
       }
     }
