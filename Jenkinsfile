@@ -78,7 +78,7 @@ pipeline {
           def websiteUrl = "http://docker01.dc.vn:51814"
           def maxRetries = 3
           def retryCount = 0
-          timeout(time: 1, unit: 'MINUTES') {
+          timeout(time: 3, unit: 'MINUTES') {
             waitUntil {
               try {         
                 sh "curl -s --head  --request GET $websiteUrl | grep '200 OK'"
@@ -95,7 +95,7 @@ pipeline {
       steps {
         script {
           def imageName = 'nssa/servicedeskform1';
-          def prodContainerName = 'servicedeskform1_test';
+          def prodContainerName = 'servicedeskform1_prod';
           def latestTag = 'lts';
           def prodPort = 51813;
           def rollBacktag = 'rollback';
