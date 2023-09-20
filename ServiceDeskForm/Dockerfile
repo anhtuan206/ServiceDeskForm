@@ -10,7 +10,7 @@ RUN mkdir /code/logs
 # RUN chmod +x gunicorn.sh
 RUN pwd
 RUN ls
-RUN pip install -r .\requirements.txt
+RUN pip install -r ./ServiceDeskForm/requirements.txt
 EXPOSE ${port}
 # ENTRYPOINT ["./gunicorn.sh"]
 ENTRYPOINT ["python","app.py"]
