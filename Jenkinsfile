@@ -78,20 +78,13 @@ pipeline {
           def websiteUrl = "http://docker01.dc.vn:51814"
           def maxRetries = 3
           def retryCount = 0
-
-          retry(max: maxRetries) {
-            retryCount++
-            def responseCode = sh(script: "curl --head --silent --output /dev/null --write-out '%{http_code}' ${websiteUrl}", returnStatus: true).trim()
-
-            if (responseCode == '200') {
-                echo "Website '${websiteUrl}' is up (HTTP Status Code: ${responseCode})"
-            } else {
-              echo "Attempt ${retryCount}: Website '${websiteUrl}' is down (HTTP Status Code: ${responseCode})"
-              if (retryCount < maxRetries) {
-                  error "Retrying in 10 seconds..."
-                  sleep time: 10, unit: 'SECONDS'
-              } else {
-                  error "Max retry count reached. Aborting the pipeline."
+          timeout(time: 1, unit: 'MINUTES') {
+            waitUntil {
+              try {         
+                sh "curl -s --head  --request GET $websiteUrl | grep '200 OK'"
+                return true
+              } catch (Exception e) {
+                return false
               }
             }
           }
@@ -137,5 +130,23 @@ pipeline {
         }
       }
     }
+    stage("8. Kiểm tra hoạt động trên môi trường chính thức")
+      steps {
+        script {
+          def websiteUrl = "http://docker01.dc.vn:51813"
+          def maxRetries = 3
+          def retryCount = 0
+          timeout(time: 1, unit: 'MINUTES') {
+            waitUntil {
+              try {         
+                sh "curl -s --head  --request GET $websiteUrl | grep '200 OK'"
+                return true
+              } catch (Exception e) {
+                return false
+              }
+            }
+          }
+        }
+      }
   }
 }
