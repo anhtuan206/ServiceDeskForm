@@ -18,6 +18,7 @@ node {
   }
   stage("4. XÂY DỰNG IMAGE VÀ CHUẨN BỊ MÔI TRƯỜNG ROLLBACK") {
     def imageName = 'nssa/servicedeskform1';
+    def testContainerName = 'servicedeskform1_test';
     def rollBacktag = 'rollback';
     def latestTag = 'lts';
     def testTag = 'test';
