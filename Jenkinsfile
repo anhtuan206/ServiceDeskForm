@@ -22,7 +22,7 @@ node {
     def latestTag = 'lts';
     def testTag = 'test';
     def testPort = 51814;
-    sh "docker build --file Dockerfile --tag ${imageName}:${testTag} --build-arg port=${testPort} .";
+    sh "docker build --file ./ServiceDeskForm/Dockerfile --tag ${imageName}:${testTag} --build-arg port=${testPort} .";
   }
   stage("5. TRIỂN KHAI MÔI TRƯỜNG KIỂM THỬ") {
     def testContainerName = 'servicedeskform1_test';
