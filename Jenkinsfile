@@ -3,16 +3,18 @@ pipeline {
 
   stages {
     stage('1. LẤY MÃ NGUỒN TỪ GIT REPOSITORY') {
+      checkout scm
+    }
+    stage('2. QUÉT MÃ NGUỒN VỚI SONARQUBE SCANNER') {
       steps {
-        checkout scm
-        }
-        stage('2. QUÉT MÃ NGUỒN VỚI SONARQUBE SCANNER') {
         def scannerHome = tool 'SonarScanner';
         withSonarQubeEnv() {
           sh "${scannerHome}/bin/sonar-scanner"
         }
-        }
-        stage("3. PHẢN HỒI KẾT QUẢ QUÉT MÃ NGUỒN") {
+      }
+    }
+    stage("3. PHẢN HỒI KẾT QUẢ QUÉT MÃ NGUỒN") {
+      steps {
         timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
           def qg = waitForQualityGate(); // Reuse taskId previously collected by withSonarQubeEnv
             if (qg.status != 'OK') {
