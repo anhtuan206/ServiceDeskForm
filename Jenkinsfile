@@ -56,6 +56,7 @@ pipeline {
               sh "docker build --file ./ServiceDeskForm/Dockerfile --tag ${imageName}:${testTag} --build-arg port=${testPort} .";
           } else {
               echo "Docker image '${imageName}' does not exist."
+              sh "docker build --file ./ServiceDeskForm/Dockerfile --tag ${imageName}:${testTag} --build-arg port=${testPort} .";
           }
         }
       }
