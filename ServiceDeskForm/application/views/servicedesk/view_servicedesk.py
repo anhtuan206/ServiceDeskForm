@@ -12,9 +12,7 @@ urllib3.disable_warnings()
 bp_rootview = Blueprint("rootview",__name__,url_prefix="/")
 @bp_rootview.get("/")
 def rootview():
-    return render_template(
-                "bootstrap/sign-in/login.html"
-            )
+    return render_template('bootstrap/sign-in/login.html')
 
 bp_servicedesk = Blueprint("servicedesk", __name__, url_prefix="/servicedesk")
 
