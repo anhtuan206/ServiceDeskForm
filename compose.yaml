@@ -2,22 +2,39 @@ services:
   servicedeskform:
     build:
       context: ServiceDeskForm
+      dockerfile: Dockerfile-compose
     image: nssa/servicedeskform:latest
-    container_name: ServiceDeskForm
+    # container_name: ServiceDeskForm
     restart: unless-stopped
-    ports: 
-      - '51813:51813'
-    networks:
-      - servicedeskform
+    # ports: 
+    #   - '51813:51813'
+    # networks:
+    #   - servicedeskform
+    scale: 2
     # volumes:
       # - /data/docker_bindmount_volumes/servicedesk_webhook:/code/logs
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://10.72.119.23:51813/servicedesk/"]
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-networks:
-  servicedeskform:
-    name: servicedeskform
-    driver: bridge
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://10.72.119.23:51813/servicedesk/"]
+    #   interval: 1m30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
+  servicedesknginx:
+    build:
+      context: Nginx
+    image: nginx:latest
+    depends_on:
+      - servicedeskform
+    volumes:
+      - nginx_volume:/etc/nginx/conf.d
+    ports:
+      - 51814:51814
+    # networks:
+    #   - servicedeskform
+volumes:
+  nginx_volume:
+    name: nginx_volume
+# networks:
+#   servicedeskform:
+#     name: servicedeskform
+#     driver: bridge
